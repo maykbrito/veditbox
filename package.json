@@ -1,0 +1,34 @@
+{
+  "name": "veditbox",
+  "version": "1.0.0",
+  "description": "Utility Box to paste url, image data or record audio then drag it out as an file to another application.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --dir"
+  },
+  "author": "Mayk Brito <maykbrito@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^11.2.3",
+    "electron-builder": "^22.9.1"
+  },
+  "dependencies": {
+    "request": "^2.88.2",
+    "temp-write": "^4.0.0"
+  },
+  "build": {
+    "appId": "mb.veditbox",
+    "mac": {
+      "category": "public.app-category.utilities"
+    },
+    "files": [
+      "index.html",
+      "style.css",
+      "src",
+      "main.js",
+      "assets",
+      "vendor"
+    ]
+  }
+}
