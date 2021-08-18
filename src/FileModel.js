@@ -1,4 +1,4 @@
-class Utils {
+class FileModel {
   /**
    * copy this.url to clipboard
    */
@@ -18,4 +18,4 @@ class Utils {
   async generate() {}
 }
 
-module.exports = Utils
+module.exports = FileModel
