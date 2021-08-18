@@ -10,6 +10,10 @@ You can paste any image data or url - also video from pexels and gif from giphy 
 
 ![Cover image](assets/preview.gif)
 
+## Warning
+
+You need youtube-dl and ffmpeg installed on your machine
+
 ## Usage
 
 1. Clone the repository
@@ -19,7 +23,6 @@ You can paste any image data or url - also video from pexels and gif from giphy 
 3. `yarn build`
 
 4. Open `dist/mac/veditbox.app`
-
 
 ### Inspiration
 
