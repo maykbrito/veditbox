@@ -9,8 +9,9 @@ const { VideoDownloader } = require('./src/VideoDownloader.js')
 
 let activeThing = { dispose: () => {} }
 
-function showStatus(text) {
+function showStatus(text, color = 'white') {
   statusText.textContent = text
+  statusText.style.color = color
 }
 
 settingsForm.alwaysOnTop.onchange = () => {
