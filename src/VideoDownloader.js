@@ -33,7 +33,11 @@ function download(url, setInfoPanel) {
       pos += chunk.length
       if (size) {
         let percent = ((pos / size) * 100).toFixed(2)
-        setInfoPanel(`Downloading video ${percent}% of ${size}`, 'lightgreen')
+        let formatedSize = `[${(size / 1024).toFixed(1)}kb]`
+        setInfoPanel(
+          `Downloading video ${percent}% of ${formatedSize}`,
+          'lightgreen',
+        )
       }
     })
 
