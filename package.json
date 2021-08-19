@@ -4,6 +4,7 @@
   "description": "Utility Box to paste url, image data or record audio then drag it out as an file to another application.",
   "main": "main.js",
   "scripts": {
+    "postinstall": "install-app-deps",
     "start": "electron .",
     "build": "electron-builder --dir"
   },
@@ -15,20 +16,24 @@
   },
   "dependencies": {
     "request": "^2.88.2",
-    "temp-write": "^4.0.0"
+    "temp-write": "^4.0.0",
+    "youtube-dl": "^3.1.0"
   },
   "build": {
     "appId": "mb.veditbox",
+    "asar": false,
     "mac": {
       "category": "public.app-category.utilities"
     },
     "files": [
       "index.html",
+      "renderer.js",
       "style.css",
       "src",
       "main.js",
       "assets",
-      "vendor"
+      "vendor",
+      "node_modules/**/*"
     ]
   }
 }

@@ -62,8 +62,8 @@ async function handlePaste(urlOrFile) {
       return { message: 'Image pasted — reading it...', handle: image }
     },
     async customSocialDownloader() {
-      await VideoDownloader(url)
-      return this.mp4('temp.mp4')
+      const filePath = await VideoDownloader(url, showStatus)
+      return this.mp4(filePath)
     },
   }
 
