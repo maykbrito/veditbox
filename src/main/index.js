@@ -9,7 +9,7 @@ ipcMain.on('dragstart', (event, options) => {
   const filePath = tempWrite.sync(options.buffer, options.name)
   event.sender.startDrag({
     file: filePath,
-    icon: path.join(__dirname, 'assets/unknown@2x.png'),
+    icon: path.join(__dirname, '..', '..', 'build/icon.png'),
   })
   removeQueue.push({ filePath })
   for (const item of removeQueue) {
@@ -70,7 +70,7 @@ function createWindow() {
   })
 
   // and load the index.html of the app.
-  win.loadFile('index.html')
+  win.loadFile('src/renderer/index.html')
 }
 
 app.whenReady().then(createWindow)

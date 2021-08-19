@@ -3,9 +3,9 @@ const {
   ipcRenderer,
   remote: { getCurrentWindow },
 } = require('electron')
-const Video = require('./src/Video.js')
-const ImageFile = require('./src/ImageFile.js')
-const { VideoDownloader } = require('./src/VideoDownloader.js')
+const Video = require('./lib/Video.js')
+const ImageFile = require('./lib/ImageFile.js')
+const { VideoDownloader } = require('./lib/VideoDownloader.js')
 
 let activeThing = { dispose: () => {} }
 

@@ -8,7 +8,7 @@ It will record audio (presss r to start recording and space to play)
 
 You can paste any image data or url - also video from pexels and gif from giphy are accepted; to be dragged to an app.
 
-![Cover image](assets/preview.gif)
+![Cover image](.github/preview.gif)
 
 ## Usage
 

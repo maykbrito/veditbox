@@ -2,7 +2,7 @@
   "name": "veditbox",
   "version": "1.0.0",
   "description": "Utility Box to paste url, image data or record audio then drag it out as an file to another application.",
-  "main": "main.js",
+  "main": "src/main/index.js",
   "scripts": {
     "postinstall": "install-app-deps",
     "start": "electron .",
@@ -26,13 +26,8 @@
       "category": "public.app-category.utilities"
     },
     "files": [
-      "index.html",
-      "renderer.js",
-      "style.css",
-      "src",
-      "main.js",
-      "assets",
-      "vendor",
+      "src/**/*",
+      "build",
       "node_modules/**/*"
     ]
   }
