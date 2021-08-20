@@ -3,9 +3,9 @@ const util = require('util')
 const exec = util.promisify(require('child_process').exec)
 var fs = require('fs')
 
-const { videoFilePath, destDownloadFolder } = require('./utils.js')
+const { videoFilePath, destDownloadFolder, showStatus } = require('./utils.js')
 
-function download(url, setInfoPanel) {
+function download(url) {
   return new Promise((resolve) => {
     let pos = 0
     let size = 0
@@ -30,7 +30,7 @@ function download(url, setInfoPanel) {
       if (size) {
         let percent = ((pos / size) * 100).toFixed(2)
         let formatedSize = `[${(size / 1024).toFixed(1)}kb]`
-        setInfoPanel(
+        showStatus(
           `Downloading video ${percent}% of ${formatedSize}`,
           'lightgreen',
         )
@@ -41,7 +41,7 @@ function download(url, setInfoPanel) {
     video.on('info', function (info) {
       size = info.size
       // update GUI with info on the file being downloaded
-      setInfoPanel(
+      showStatus(
         `title: ${info.title} | filename: ${info._filename} | size:${info.size} | path:${videoFilePath}`,
         'orange',
       )
@@ -51,16 +51,16 @@ function download(url, setInfoPanel) {
     })
 
     video.on('end', function () {
-      setInfoPanel('done downloading video file', 'green')
+      showStatus('done downloading video file', 'green')
       resolve(videoFilePath)
     })
   })
 }
 
-module.exports.VideoDownloader = async function (url, showStatusFn) {
+module.exports.VideoDownloader = async function (url) {
   try {
     await exec('rm -rf ' + videoFilePath)
-    return download(url, showStatusFn)
+    return download(url)
   } catch (error) {
     throw new Error(error)
   }
