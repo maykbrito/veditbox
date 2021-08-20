@@ -45,7 +45,6 @@ module.exports.screenRecorder = ({
       ondataavailable,
       onstop,
     )
-    console.log(mediaRecorder)
   }
 
   // EVENTS =========================================
