@@ -35,7 +35,7 @@ class VideoFile extends FileModel {
     return new File([data], 'video.mp4', metadata)
   }
 
-  setEvents(showStatus, mainArea, activeThing, ipcRenderer) {
+  setEvents(showStatus) {
     this.el.onloadeddata = () => {
       showStatus(
         `Video loaded [${this.el.videoWidth}x${this.el.videoHeight}] [${(
@@ -43,13 +43,12 @@ class VideoFile extends FileModel {
         ).toFixed(1)}kb]`,
       )
       mainArea.appendChild(this.el)
-      activeThing = { dispose: () => {} }
     }
 
     this.el.ondragstart = (event) => {
       event.preventDefault()
       const buffer = Buffer.from(this.arrayBuffer)
-      ipcRenderer.send('dragstart', { buffer, name: this.name })
+      win.webContents.send('dragstart', { buffer, name: this.name })
     }
   }
 }
