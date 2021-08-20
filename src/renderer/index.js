@@ -3,6 +3,7 @@ const { ipcRenderer } = require('electron')
 const VideoFile = require('./lib/VideoFile.js')
 const ImageFile = require('./lib/ImageFile.js')
 const { VideoDownloader } = require('./lib/VideoDownloader.js')
+const { screenRecorder } = require('./lib/recorder/screen/index.js')
 
 let { activeThing, showStatus } = require('./lib/utils.js')
 require('./lib/control-window.js')
@@ -98,21 +99,8 @@ function processHandler({ message, handle }) {
   handle.setEvents(showStatus, mainArea, activeThing, ipcRenderer)
 }
 
-window.onkeydown = (e) => {
-  if (!e.altKey && !e.ctrlKey && !e.metaKey) {
-    if (e.key === 'r' || e.key === 'R') {
-      e.preventDefault()
-      e.stopPropagation()
-      toggleRecording({ noiseSuppression: !e.shiftKey })
-    } else if (e.key === ' ') {
-      if (activeThing.play) {
-        e.preventDefault()
-        e.stopPropagation()
-        activeThing.play()
-      }
-    }
-  }
-}
+// Screen recorder
+screenRecorder({ showStatus, VideoFile, mainArea, activeThing })
 
 // Audio Recorder
 require('./lib/recorder/audio/index.js')

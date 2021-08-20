@@ -1,9 +1,16 @@
-const { app, ipcMain, BrowserWindow, clipboard } = require('electron')
+const {
+  app,
+  ipcMain,
+  BrowserWindow,
+  clipboard,
+  globalShortcut,
+} = require('electron')
 const tempWrite = require('temp-write')
 const fs = require('fs')
 const path = require('path')
 const removeQueue = []
 let recycled = 0
+let win
 
 ipcMain.on('dragstart', (event, options) => {
   const filePath = tempWrite.sync(options.buffer, options.name)
@@ -57,7 +64,7 @@ ipcMain.on('clipboardMonitor', (event, options) => {
 
 function createWindow() {
   // Create the browser window.
-  let win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 320,
     height: 320,
     vibrancy: 'hud',
@@ -73,4 +80,20 @@ function createWindow() {
   win.loadFile('src/renderer/index.html')
 }
 
-app.whenReady().then(createWindow)
+let isRecording = false
+function createShortcuts() {
+  globalShortcut.register('Alt+Shift+Control+a', () =>
+    win.webContents.send('screenRecorderSelectSource'),
+  )
+
+  globalShortcut.register('Alt+Shift+Control+s', () => {
+    if (!isRecording) {
+      win.webContents.send('startScreenRecorder')
+    } else {
+      win.webContents.send('stopScreenRecorder')
+    }
+    isRecording = !isRecording
+  })
+}
+
+app.whenReady().then(createWindow).then(createShortcuts)
