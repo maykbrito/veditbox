@@ -1,3 +1,4 @@
+const { ipcRenderer } = require('electron')
 const FileModel = require('./FileModel')
 
 class VideoFile extends FileModel {
@@ -43,12 +44,13 @@ class VideoFile extends FileModel {
         ).toFixed(1)}kb]`,
       )
       mainArea.appendChild(this.el)
+      window.activeThing = { dispose: () => {} }
     }
 
     this.el.ondragstart = (event) => {
       event.preventDefault()
       const buffer = Buffer.from(this.arrayBuffer)
-      win.webContents.send('dragstart', { buffer, name: this.name })
+      ipcRenderer.send('dragstart', { buffer, name: this.name })
     }
   }
 }

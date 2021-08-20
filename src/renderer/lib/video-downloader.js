@@ -1,16 +1,12 @@
 var youtubedl = require('youtube-dl')
 const util = require('util')
 const exec = util.promisify(require('child_process').exec)
-const path = require('path')
 var fs = require('fs')
 
-const { app } = require('electron').remote
-let destDownloadFolder = app.getPath('videos')
-
-const videoFilePath = path.join(destDownloadFolder, 'temp.mp4')
+const { videoFilePath, destDownloadFolder } = require('./utils.js')
 
 function download(url, setInfoPanel) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     let pos = 0
     let size = 0
 

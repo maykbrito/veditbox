@@ -1,3 +1,4 @@
+const { ipcRenderer } = require('electron')
 const FileModel = require('./FileModel')
 
 class ImageFile extends FileModel {
@@ -30,7 +31,7 @@ class ImageFile extends FileModel {
     return new File([data], 'image.' + this.fileType, metadata)
   }
 
-  setEvents(showStatus, mainArea, activeThing, ipcRenderer) {
+  setEvents(showStatus) {
     this.el.onload = () => {
       showStatus(
         `Image loaded [${this.el.width}x${this.el.height}] [${(
@@ -38,7 +39,7 @@ class ImageFile extends FileModel {
         ).toFixed(1)}kb]`,
       )
       mainArea.appendChild(this.el)
-      activeThing = { dispose: () => {} }
+      window.activeThing = { dispose: () => {} }
     }
 
     this.el.ondragstart = (event) => {

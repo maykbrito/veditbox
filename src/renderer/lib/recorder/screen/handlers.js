@@ -1,4 +1,6 @@
 const { createVideoFile } = require('./ffmpeg')
+const { videoFilePath } = require('./video-filepath.js')
+const VideoFile = require('../../file/VideoFile.js')
 
 let recordedChunks = []
 
@@ -16,4 +18,17 @@ async function handleStop() {
   window.videoBuffer = Buffer.from(await blob.arrayBuffer())
 }
 
-module.exports = { handleDataAvailable, handleStop, createVideoFile }
+async function onstop() {
+  await handleStop()
+  await createVideoFile(videoFilePath, showStatus)
+  const video = new VideoFile(videoFilePath)
+  await video.generate()
+  mainArea.innerHTML = ''
+  video.setEvents(showStatus)
+}
+
+async function ondataavailable(e) {
+  handleDataAvailable(e)
+}
+
+module.exports = { onstop, ondataavailable }
