@@ -1,31 +1,17 @@
 const { Buffer } = require('buffer')
-const {
-  ipcRenderer,
-  remote: { getCurrentWindow },
-} = require('electron')
-const Video = require('./lib/Video.js')
+const { ipcRenderer } = require('electron')
+const VideoFile = require('./lib/VideoFile.js')
 const ImageFile = require('./lib/ImageFile.js')
 const { VideoDownloader } = require('./lib/VideoDownloader.js')
 
-let activeThing = { dispose: () => {} }
+let { activeThing, showStatus } = require('./lib/utils.js')
+require('./lib/control-window.js')
 
-function showStatus(text, color = 'white') {
-  statusText.textContent = text
-  statusText.style.color = color
-}
-
-settingsForm.alwaysOnTop.onchange = () => {
-  getCurrentWindow().setAlwaysOnTop(settingsForm.alwaysOnTop.checked)
-}
-settingsForm.autoPaste.onchange = () => {
-  ipcRenderer.send('clipboardMonitor', {
-    on: settingsForm.autoPaste.checked,
-  })
-}
+// Configure status message
+showStatus = showStatus(statusText)
 showStatus('Paste image, url or press R to start record audio')
 
-document.ondragover = (e) => e.preventDefault()
-
+// Paste content from clipboard
 document.onpaste = async (e) => {
   e.preventDefault()
   let isUrl = (e.clipboardData || window.clipboardData).getData('text')
@@ -54,7 +40,7 @@ async function handlePaste(urlOrFile) {
     },
     mp4(customUrl = null) {
       const link = customUrl || url
-      const video = new Video(link)
+      const video = new VideoFile(link)
       return { message: 'Video pasted — reading it...', handle: video }
     },
     image() {

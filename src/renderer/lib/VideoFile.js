@@ -1,7 +1,7 @@
 const FileModel = require('./FileModel')
 
-class Video extends FileModel {
-  constructor(url) {
+class VideoFile extends FileModel {
+  constructor(url = null) {
     super()
     this.url = url
     this.el = document.createElement('video')
@@ -12,20 +12,26 @@ class Video extends FileModel {
     this.el.setAttribute('loop', true)
   }
 
-  async generate() {
-    this.file = await this.createFile()
+  async generate(blobFile = null) {
+    this.file = await this.createFile(blobFile)
     this.el.src = URL.createObjectURL(this.file)
     this.name = `${new Date().toJSON().replace(/\W/g, '')}.mp4`
     this.arrayBuffer = await this.file.arrayBuffer()
     return this
   }
 
-  async createFile() {
-    let response = await fetch(this.url)
-    let data = await response.blob()
+  async createFile(blobFile = null) {
+    let data = blobFile
+
+    if (!blobFile) {
+      let response = await fetch(this.url)
+      data = await response.blob()
+    }
+
     let metadata = {
       type: 'image/mp4',
     }
+
     return new File([data], 'video.mp4', metadata)
   }
 
@@ -48,4 +54,4 @@ class Video extends FileModel {
   }
 }
 
-module.exports = Video
+module.exports = VideoFile
