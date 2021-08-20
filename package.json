@@ -15,6 +15,8 @@
     "electron-builder": "^22.9.1"
   },
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.0.20",
+    "fluent-ffmpeg": "^2.1.2",
     "request": "^2.88.2",
     "temp-write": "^4.0.0",
     "youtube-dl": "^3.1.0"
