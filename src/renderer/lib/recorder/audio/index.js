@@ -1,6 +1,8 @@
 const { Buffer } = require('buffer')
 const { ipcRenderer } = require('electron')
 const { showStatus } = require('../../utils.js')
+const { createWaveformDisplay } = require('./waveform-display.js')
+const { getMediaStream } = require('./media-stream.js')
 
 window.onkeydown = (e) => {
   if (!e.altKey && !e.ctrlKey && !e.metaKey) {
@@ -16,89 +18,6 @@ window.onkeydown = (e) => {
       }
     }
   }
-}
-
-function createWaveformDisplay() {
-  const el = document.createElement('div')
-  el.className = 'waveform-display'
-
-  const createColumn = (startTime) => {
-    const column = document.createElement('div')
-    column.className = 'waveform-display-column'
-    el.appendChild(column)
-    let maxAmplitude = 0
-
-    return {
-      startTime,
-      handleAmplitude: (a) => {
-        const amplitude = Math.round(a * 100)
-        if (amplitude > maxAmplitude) {
-          maxAmplitude = amplitude
-          column.style.height = amplitude + '%'
-        }
-      },
-    }
-  }
-
-  let startTime = 0
-  let lastColumn = createColumn(0)
-
-  return {
-    element: el,
-
-    finish: () => {
-      el.dataset.finished = 'true'
-    },
-
-    handle: (data) => {
-      const now = Date.now()
-
-      if (!startTime) startTime = now
-      let amplitude = 0
-
-      for (let i = 0; i < data.length; i++) {
-        const a = Math.abs(data[i])
-        if (a > amplitude) amplitude = a
-      }
-
-      const audioTime = now - startTime
-
-      if (audioTime - lastColumn.startTime > 200) {
-        lastColumn = createColumn(lastColumn.startTime + 200)
-      }
-
-      lastColumn.handleAmplitude(amplitude)
-    },
-  }
-}
-
-let latestStream
-async function getMediaStream({ noiseSuppression }) {
-  if (latestStream) {
-    if (latestStream.noiseSuppression !== noiseSuppression) {
-      latestStream.destroy()
-      latestStream = null
-    }
-  }
-
-  if (!latestStream) {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        autoGainControl: false,
-        echoCancellation: false,
-        noiseSuppression: noiseSuppression,
-      },
-      video: false,
-    })
-
-    const destroy = () => {
-      for (const track of stream.getTracks()) track.stop()
-    }
-
-    latestStream = { noiseSuppression, stream, destroy }
-  }
-
-  return latestStream
 }
 
 async function toggleRecording({ noiseSuppression }) {
@@ -117,8 +36,8 @@ async function toggleRecording({ noiseSuppression }) {
     mainArea.innerHTML = ''
 
     const waveformDisplay = createWaveformDisplay()
-    const el = waveformDisplay.element
-    mainArea.appendChild(el)
+    const waveformEl = waveformDisplay.element
+    mainArea.appendChild(waveformEl)
 
     const thing = { isRecording: true }
     window.activeThing = thing
@@ -210,8 +129,8 @@ async function toggleRecording({ noiseSuppression }) {
       audio.remove()
     })
 
-    el.draggable = true
-    el.ondragstart = (event) => {
+    waveformEl.draggable = true
+    waveformEl.ondragstart = (event) => {
       event.preventDefault()
       const buffer = Buffer.from(waveBuffer)
       ipcRenderer.send('dragstart', { buffer, name })
