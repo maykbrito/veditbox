@@ -1,23 +1,25 @@
 const { ipcRenderer } = require('electron')
 const FileModel = require('./FileModel')
+const magick = require('imagemagick');
+const { imageFilePath } = require('../utils')
 
 class ImageFile extends FileModel {
   /**
    * @param {string} urlOrFile - image url or File Object
    * @param {string} fileType - image type
    */
-  constructor(urlOrFile, fileType = 'png') {
+  constructor(urlOrFile) {
     super()
     this.url = typeof urlOrFile === 'string' ? urlOrFile : null
     this.file = this.url ? null : urlOrFile
     this.el = new Image()
-    this.fileType = fileType
   }
 
   async generate() {
     this.file = this.file || (await this.createFile())
     this.el.src = URL.createObjectURL(this.file)
-    this.name = `${new Date().toJSON().replace(/\W/g, '')}.${this.fileType}`
+    this.fileType = this.fileType || 'png'
+    this.name = imageFilePath(this.fileType)
     this.arrayBuffer = await this.file.arrayBuffer()
     return this
   }
@@ -25,6 +27,7 @@ class ImageFile extends FileModel {
   async createFile() {
     let response = await fetch(this.url)
     let data = await response.blob()
+    this.fileType = data.type.split('/').at(-1)
     let metadata = {
       type: 'image/' + this.fileType,
     }
@@ -34,7 +37,7 @@ class ImageFile extends FileModel {
   setEvents(showStatus) {
     this.el.onload = () => {
       showStatus(
-        `Image loaded [${this.el.width}x${this.el.height}] [${(
+        `Image ${this.name.split('/').at(-1)} loaded [${this.el.width}x${this.el.height}] [${(
           this.arrayBuffer.byteLength / 1024
         ).toFixed(1)}kb]`,
       )
@@ -42,11 +45,24 @@ class ImageFile extends FileModel {
       window.activeThing = { dispose: () => {} }
     }
 
-    this.el.ondragstart = (event) => {
+    this.el.ondragstart = async (event) => {
       event.preventDefault()
       const buffer = Buffer.from(this.arrayBuffer)
-      ipcRenderer.send('dragstart', { buffer, name: this.name })
+      ipcRenderer.send('dragstart', { buffer, name: this.name})
     }
+  }
+
+  async webpToGif() {
+    if(this.fileType != 'webp') return
+
+    return new Promise(resolve => {
+      // magick convert -format gif My_anim.webp animation.gif
+      magick.convert([this.name, '-format',  'gif', this.name + '.gif'], (err, stdout) => {
+        if (err) throw err;
+        console.log('stdout:', stdout);
+        resolve(this.name + '.gif')
+      })
+    })
   }
 }
 

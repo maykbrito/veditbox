@@ -1,5 +1,6 @@
 const { ipcRenderer } = require('electron')
 const FileModel = require('./FileModel')
+const { videoFilePath } = require('../utils')
 
 class VideoFile extends FileModel {
   constructor(url = null) {
@@ -16,7 +17,7 @@ class VideoFile extends FileModel {
   async generate(blobFile = null) {
     this.file = await this.createFile(blobFile)
     this.el.src = URL.createObjectURL(this.file)
-    this.name = `${new Date().toJSON().replace(/\W/g, '')}.mp4`
+    this.name = videoFilePath
     this.arrayBuffer = await this.file.arrayBuffer()
     return this
   }

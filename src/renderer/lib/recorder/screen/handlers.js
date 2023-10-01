@@ -1,5 +1,6 @@
+const fs = require('fs')
 const { createVideoFile } = require('./ffmpeg')
-const { videoFilePath } = require('./video-filepath.js')
+const { videoFilePath } = require('../../utils')
 const VideoFile = require('../../file/VideoFile.js')
 
 let recordedChunks = []
@@ -15,12 +16,20 @@ async function handleStop() {
 
   recordedChunks = []
 
-  window.videoBuffer = Buffer.from(await blob.arrayBuffer())
+  return Buffer.from(await blob.arrayBuffer())
 }
 
 async function onstop() {
-  await handleStop()
+  const videoBuffer = await handleStop()
+  // temp file
+  fs.writeFileSync(videoFilePath + '.webm', videoBuffer)
+  
+  // mp4 file
   await createVideoFile(videoFilePath, showStatus)
+  
+  // delete temp
+  fs.unlinkSync(videoFilePath + '.webm')
+  
   const video = new VideoFile(videoFilePath)
   await video.generate()
   mainArea.innerHTML = ''

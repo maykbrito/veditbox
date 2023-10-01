@@ -1,3 +1,27 @@
+:root {
+  /* omni colors */
+  --gray-100: #121214;
+  --gray-200: #191622;
+  --gray-300: #272234;
+  --white: #E1E1E6;
+  --gray-500: #41414D;
+  --purple: #5A4B81;
+  --light-purple: #988bc7;
+  --green: #67e480;
+  --orange: #E89E64;
+  --pink: #FF79C6;
+  --blue: #78D1E1;
+  --red: #E96379;
+  --yellow: #e7de79;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+
 * {
   margin: 0;
   padding: 0;
@@ -5,15 +29,14 @@
 }
 
 body {
-  background: #221d2d;
+  background: var(--gray-200);
   user-select: none;
-  color: #f9f9f9;
+  color: var(--white);
   font: 10px monospace;
 }
 #appLayout {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
 }
 
 img {
@@ -34,6 +57,7 @@ img {
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  height: 20px;
 }
 
 .waveform-display {
@@ -64,4 +88,71 @@ video {
   height: auto;
   display: block;
   margin-inline: auto;
+}
+
+#helpBtn {
+  all: unset;
+  border: 1px solid rgb(255 255 255 / 0.6);
+  border-radius: 50%;
+  line-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 24px;
+  width: 24px;
+
+  font-size: 12px;
+
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+
+  cursor: pointer;
+}
+
+dialog::backdrop {
+  background-color: rgb(12 12 12 / 0.8);
+}
+
+dialog {
+  width: 80%;
+  padding: 2rem 1.5rem 1.5rem 2rem;
+  margin: auto;
+  
+  background-color: var(--gray-200);
+  color: var(--white);
+  box-shadow: 0 0 1em rgb(0 0 0 / 0.1);
+  
+  border: none;
+  border-radius: 8px;
+
+}
+
+dialog h2, dialog p{
+  margin-bottom: .8rem;
+}
+
+dialog p b {
+  color: var(--pink)
+}
+
+dialog p span {
+  color: var(--green)
+}
+
+dialog button {
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--green);
+  color: var(--gray-100);
+  cursor: pointer;
+  margin-top: 1rem;
+  position: relative;
+  left: 94%;
+  transform: translateX(-50%);
 }

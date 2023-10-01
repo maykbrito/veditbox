@@ -23,6 +23,14 @@ Now you can click and drag the media from the box to any app that accepts drop.
 3. `yarn build`
 4. Open `dist/mac/veditbox.app`
 
+## Dependencies
+
+You'll need those installed in your machine
+
+1. yt-dlp
+2. ffmpeg
+3. ImageMagick
+
 ## Inspiration
 
 - https://dev.to/dtinth/pastebox-paste-in-an-image-drag-it-out-as-a-file-41m0

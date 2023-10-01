@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <title>Veditbox</title>
-    <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
     <meta
       http-equiv="Content-Security-Policy"
       content="script-src 'self' 'unsafe-inline';"
@@ -19,11 +18,31 @@
           <label>
             <input type="checkbox" name="alwaysOnTop" /> Always on top
           </label>
-          <label> <input type="checkbox" name="autoPaste" /> Auto-paste </label>
         </form>
       </div>
       <div id="mainArea"></div>
     </div>
+    
+    <button id="helpBtn">?</button>
+
+    <dialog>
+      <h2>How to use</h2>
+      <p>
+        You can <span>paste</span> any <b>Image File</b>, <b>Giphy</b> or <b>Video URL</b> like Pexels, Instagram, Twitter, Youtube or any .mp4 file.
+      </p>
+      <p>
+        <b>Record Audio</b>: Hit <span>R</span> to start record audio.   
+      </p>
+      <p>
+        <b>Record video</b>: Select the video source with <span>Alt+Shift+Control+A</span> and use <span>Alt+Shift+Control+S</span> to the record video      
+      </p>
+
+      <p>
+        <b>Then</b> when image, audio or video appears, you can <span>drag and drop</span> it in any program that accepts dropping. <b>OR</b> after dragging, you'll find the file in the <span>veditbox</span> folder in your operational system user's folder      
+      </p>
+
+      <button>OK</button>
+    </dialog>
 
     <script src="lib/vendor/audiobuffer-to-wav.js"></script>
     <script src="index.js"></script>

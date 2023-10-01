@@ -5,7 +5,7 @@ const { VideoDownloader } = require('../video-downloader.js')
 module.exports.getHandlers = (url) => ({
   giphy() {
     const giphyPureUrl = url.replace(/media\./g, 'i.')
-    const giphy = new ImageFile(giphyPureUrl, 'gif')
+    const giphy = new ImageFile(giphyPureUrl)
     return { message: 'Giphy pasted — reading it...', handle: giphy }
   },
   pexels() {

@@ -1,9 +1,10 @@
-const { remote } = require('electron')
 const path = require('path')
-const { app } = remote
-let destDownloadFolder = app.getPath('videos')
-module.exports.destDownloadFolder = destDownloadFolder
-module.exports.videoFilePath = path.join(destDownloadFolder, 'temp.mp4')
+
+let tempName = () => new Date().toJSON().replace(/\W/g, '')
+module.exports.destDownloadFolder = globalThis.destDownloadFolder
+module.exports.videoFilePath = path.join(destDownloadFolder, `${tempName()}.mp4`)
+module.exports.audioFilePath = path.join(destDownloadFolder, `${tempName()}.wav`)
+module.exports.imageFilePath = (ext) => path.join(destDownloadFolder, `${tempName()}.${ext}`)
 
 window.activeThing = { dispose: () => {} }
 module.exports.activeThing = window.activeThing

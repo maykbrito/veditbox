@@ -1,14 +1,5 @@
-const {
-  ipcRenderer,
-  remote: { getCurrentWindow },
-} = require('electron')
+const { getCurrentWindow } = require('@electron/remote')
 
 settingsForm.alwaysOnTop.onchange = () => {
   getCurrentWindow().setAlwaysOnTop(settingsForm.alwaysOnTop.checked)
-}
-
-settingsForm.autoPaste.onchange = () => {
-  ipcRenderer.send('clipboardMonitor', {
-    on: settingsForm.autoPaste.checked,
-  })
 }

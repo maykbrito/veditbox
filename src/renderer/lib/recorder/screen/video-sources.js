@@ -1,5 +1,4 @@
-const { desktopCapturer, remote } = require('electron')
-const { Menu } = remote
+const { desktopCapturer, Menu } = require('@electron/remote')
 const { ondataavailable, onstop } = require('./handlers.js')
 
 /**
@@ -43,6 +42,16 @@ async function selectSource(source, cb) {
   cb(constraints)
 }
 
+async function createStream(constraints) {
+  // Create a Stream
+  const stream = await navigator.mediaDevices.getUserMedia(constraints)
+  const mimeType = 'video/webm; codecs="pcm"'
+
+  return {
+    stream, mimeType
+  }
+}
+
 /**
  * Create a MediaRecorder
  * @param {Object} constraints - MediaRecorder constraints
@@ -51,11 +60,9 @@ async function selectSource(source, cb) {
  * @return {MediaRecorder} - MediaRecorder instance
  */
 async function createMediaRecorder(constraints) {
-  // Create a Stream
-  const stream = await navigator.mediaDevices.getUserMedia(constraints)
-  const mimeType = 'video/webm; codecs="pcm"'
-  window.mediaRecorder = new MediaRecorder(stream, { mimeType })
+  const { stream, mimeType } = await createStream(constraints)
 
+  window.mediaRecorder = new MediaRecorder(stream, { mimeType })
   window.mediaRecorder.ondataavailable = ondataavailable
   window.mediaRecorder.onstop = onstop
 }

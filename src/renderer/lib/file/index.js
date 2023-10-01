@@ -14,9 +14,9 @@ document.onpaste = async (e) => {
 async function handlePaste(urlOrFile) {
   const url = typeof urlOrFile === 'string' ? urlOrFile : null
 
-  const custom = ['https://media.giphy', 'mp4', 'pexels']
-  const imagesType = ['png', 'gif', 'jpg', 'jpeg', 'webp']
-  const customSocialMedia = ['twitter', 'instagram']
+  const custom = ['mp4', 'pexels']
+  const imagesType = ['.png', '.gif', '.jpg', '.jpeg', '.webp']
+  const customSocialMedia = ['twitter', 'instagram', 'youtube']
   const allowed = [...custom, ...imagesType, ...customSocialMedia]
 
   const handlers = getHandlers(url)
@@ -53,8 +53,12 @@ async function handlePaste(urlOrFile) {
       handler = 'customSocialDownloader'
     }
 
-    const handlerResult = await handlers[handler]()
-    processHandler(handlerResult)
+    try {
+      const handlerResult = await handlers[handler]()
+      processHandler(handlerResult)
+    } catch (error) {
+      showStatus(error, 'red')
+    }
   }
 }
 
