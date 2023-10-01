@@ -27,9 +27,9 @@ Now you can click and drag the media from the box to any app that accepts drop.
 
 You'll need those installed in your machine
 
-1. yt-dlp
-2. ffmpeg
-3. ImageMagick
+1. [yt-dlp](https://github.com/yt-dlp/yt-dlp/wiki/Installation)
+2. [ffmpeg](https://ffmpeg.org/download.html)
+3. [ImageMagick](https://imagemagick.org/script/download.php)
 
 ## Inspiration
 
