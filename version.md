@@ -1,5 +1,22 @@
 # Versions
 
+## 1.0.3
+
+* small code improvements and refactor
+
+### New
+
+* Auto download yt-dlp executable (tested only in MacOS)
+
+## Update 
+
+* electron-builder
+
+### Fix
+
+* Download videos
+* When recording or download new video, don't replace the older one
+
 ## 1.0.2
 
 ### New

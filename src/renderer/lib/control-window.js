@@ -1,5 +1,8 @@
-const { getCurrentWindow } = require('@electron/remote')
+const { windowAlwaysOnTop } = require('../../utils/window-always-on-top')
+const { ELEMENTS } = require('../../utils/elements')
+
+const settingsForm = ELEMENTS.settingsForm
 
 settingsForm.alwaysOnTop.onchange = () => {
-  getCurrentWindow().setAlwaysOnTop(settingsForm.alwaysOnTop.checked)
+  windowAlwaysOnTop(settingsForm.alwaysOnTop.checked)
 }

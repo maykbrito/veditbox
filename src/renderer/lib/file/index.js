@@ -1,5 +1,8 @@
-let { showStatus } = require('../utils.js')
+const { showStatus } = require('../../../utils/show-status')
 const { getHandlers } = require('./handlers.js')
+
+const { ELEMENTS } = require('../../../utils/elements')
+const mainArea = ELEMENTS.mainArea
 
 // Paste content from clipboard
 document.onpaste = async (e) => {

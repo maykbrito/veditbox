@@ -1,5 +1,4 @@
-const modal = document.querySelector('dialog')
-helpBtn.onclick = () => modal.showModal()
+const { ELEMENTS } = require('../../utils/elements')
 
-const closeBtn = modal.querySelector('button')
-closeBtn.onclick = () => modal.close()
+ELEMENTS.helpBtn.onclick = () => ELEMENTS.modal.showModal()
+ELEMENTS.closeBtn.onclick = () => ELEMENTS.modal.close()

@@ -1,7 +1,12 @@
 const { ipcRenderer } = require('electron')
-const FileModel = require('./FileModel')
 const magick = require('imagemagick');
-const { imageFilePath } = require('../utils')
+
+const FileModel = require('./FileModel')
+
+const { ELEMENTS } = require('../../../utils/elements')
+const mainArea = ELEMENTS.mainArea
+
+const { CONSTANTS } = require('../../../utils/constants')
 
 class ImageFile extends FileModel {
   /**
@@ -19,7 +24,7 @@ class ImageFile extends FileModel {
     this.file = this.file || (await this.createFile())
     this.el.src = URL.createObjectURL(this.file)
     this.fileType = this.fileType || 'png'
-    this.name = imageFilePath(this.fileType)
+    this.name = CONSTANTS.imageFilePath(this.fileType)
     this.arrayBuffer = await this.file.arrayBuffer()
     return this
   }

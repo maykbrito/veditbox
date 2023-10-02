@@ -1,7 +1,13 @@
 const { Buffer } = require('buffer')
 const { ipcRenderer } = require('electron')
-const { showStatus, audioFilePath } = require('../../utils.js')
 const { createWaveformDisplay } = require('./waveform-display.js')
+
+const { ELEMENTS } = require('../../../../utils/elements.js')
+const mainArea = ELEMENTS.mainArea
+
+const { CONSTANTS } = require('../../../../utils/constants')
+
+const { showStatus } = require('../../../../utils/show-status')
 const { getMediaStream } = require('./media-stream.js')
 
 window.onkeydown = (e) => {
@@ -99,7 +105,7 @@ async function toggleRecording({ noiseSuppression }) {
     const waveBuffer = audioBufferToWav(audioBuffer)
 
     const audio = document.createElement('audio')
-    const name = audioFilePath
+    const name = CONSTANTS.audioFilePath()
     const blob = new Blob([waveBuffer], { type: 'audio/wav' })
     audio.src = URL.createObjectURL(blob)
 

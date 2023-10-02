@@ -1,29 +1,13 @@
-const YTDlpWrap = require('yt-dlp-wrap').default;
-const youtubedl = new YTDlpWrap();
+const youtubedl = require('../../utils/get-yt-dlp')
 
 const fs = require('fs')
+const { CONSTANTS } = require('../../utils/constants')
+const { showStatus } = require('../../utils/show-status')
 
-const { videoFilePath, showStatus } = require('./utils.js')
-
-// async function download(url) {
-//   try { 
-//     const response = await fetch(url)
-//     const file = await response.blob()
-//     const link = document.createElement('a')
-//     link.href = URL.createObjectURL(file)
-//     link.download = videoFilePath
-//     link.hidden = true;
-//     link.click()
-//     showStatus('done downloading video file', 'green')
-//     return videoFilePath
-//   } catch(err) {
-//     showStatus('error downloading video', 'red')
-//   }
-// }
-
-function download(url) {
+const download = (url) => {
   let err = false
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
+    const videoFilePath = CONSTANTS.videoFilePath()
     let video = youtubedl.execStream([
       '-o', videoFilePath,
       url,

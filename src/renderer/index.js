@@ -1,14 +1,8 @@
 // create directory if not exists
-const fs = require('fs');
-const homedir = require('os').homedir();
-const dir = globalThis.destDownloadFolder = homedir + '/veditbox';
+require('../utils/create-download-directory').create()
 
-if (!fs.existsSync(dir)){
-    fs.mkdirSync(dir);
-}
-
-// ----
-let { showStatus } = require('./lib/utils.js')
+// globals
+require('../utils/globals')
 
 require('./lib/control-window.js')
 require('./lib/modal.js')

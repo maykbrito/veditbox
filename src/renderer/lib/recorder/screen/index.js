@@ -1,6 +1,9 @@
 const { ipcRenderer } = require('electron')
 const { getVideoSources, createMediaRecorder } = require('./video-sources')
-const { showStatus } = require('../../utils.js')
+const { showStatus } = require('../../../../utils/show-status')
+
+const { ELEMENTS } = require('../../../../utils/elements')
+const mainArea = ELEMENTS.mainArea
 
 // start default video source
 ;(async () => {
