@@ -1,14 +1,12 @@
 const { ipcRenderer } = require('electron')
-const FileModel = require('./FileModel')
 
 const { ELEMENTS } = require('../../../utils/elements')
 const mainArea = ELEMENTS.mainArea
 
 const { CONSTANTS } = require('../../../utils/constants')
 
-class VideoFile extends FileModel {
+class VideoFile {
   constructor(url = null) {
-    super()
     this.url = url
     this.el = document.createElement('video')
     this.el.id = 'videoFile'

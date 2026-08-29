@@ -1,12 +1,6 @@
-const fs = require('fs');
+const fs = require('fs')
 const { CONSTANTS } = require('./constants')
 
-const create = () => { 
-  const dir = CONSTANTS.destDownloadFolder 
-
-  if (!fs.existsSync(dir)){
-      fs.mkdirSync(dir);
-  }
-}
+const create = () => fs.mkdirSync(CONSTANTS.destDownloadFolder, { recursive: true })
 
 module.exports = { create }

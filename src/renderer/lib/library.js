@@ -57,8 +57,7 @@ function createThumb({ category, filePath }) {
 
 function showLibrary(tab) {
   setTab(tab)
-  window.activeThing.dispose()
-  window.activeThing = { dispose: () => {} }
+  resetActiveThing()
   mainArea.innerHTML = ''
 
   const files = listFiles(tab)
@@ -92,8 +91,7 @@ function showLibrary(tab) {
 
 // Logo = voltar pra home (tela vazia de paste), nenhuma aba ativa
 function showHome() {
-  window.activeThing.dispose()
-  window.activeThing = { dispose: () => {} }
+  resetActiveThing()
   mainArea.innerHTML = ''
   setTab(null)
   showStatus('Paste image, url or use shortcuts do record audio/video')
@@ -130,8 +128,7 @@ function createPlayer({ category, filePath }) {
 }
 
 function showPreview(file, tab) {
-  window.activeThing.dispose()
-  window.activeThing = { dispose: () => {} }
+  resetActiveThing()
   mainArea.innerHTML = ''
 
   const back = document.createElement('button')

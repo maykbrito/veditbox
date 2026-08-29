@@ -1,20 +1,15 @@
 const { ipcRenderer } = require('electron')
-const magick = require('imagemagick');
-
-const FileModel = require('./FileModel')
-
 const { ELEMENTS } = require('../../../utils/elements')
 const mainArea = ELEMENTS.mainArea
 
 const { CONSTANTS } = require('../../../utils/constants')
 
-class ImageFile extends FileModel {
+class ImageFile {
   /**
    * @param {string} urlOrFile - image url or File Object
    * @param {string} fileType - image type
    */
   constructor(urlOrFile) {
-    super()
     this.url = typeof urlOrFile === 'string' ? urlOrFile : null
     this.file = this.url ? null : urlOrFile
     this.el = new Image()
@@ -57,18 +52,6 @@ class ImageFile extends FileModel {
     }
   }
 
-  async webpToGif() {
-    if(this.fileType != 'webp') return
-
-    return new Promise(resolve => {
-      // magick convert -format gif My_anim.webp animation.gif
-      magick.convert([this.name, '-format',  'gif', this.name + '.gif'], (err, stdout) => {
-        if (err) throw err;
-        console.log('stdout:', stdout);
-        resolve(this.name + '.gif')
-      })
-    })
-  }
 }
 
 module.exports = ImageFile
