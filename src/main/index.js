@@ -1,27 +1,15 @@
 require('@electron/remote/main').initialize()
 
-const { app, ipcMain, BrowserWindow, clipboard, globalShortcut } = require('electron')
+const { app, ipcMain, BrowserWindow, globalShortcut } = require('electron')
 
 const { webpToGif } = require('../utils/webp-to-gif')
 
-const fs = require('fs')
 const path = require('path')
 let win
 
-ipcMain.on('dragstart', async (event, options) => {
-  fs.writeFileSync(options.name, options.buffer)
-
-  let file = await webpToGif(options.name)
-
+ipcMain.on('dragfile', async (event, filePath) => {
   event.sender.startDrag({
-    file,
-    icon: path.join(__dirname, '..', '..', 'build/icon.png'),
-  })
-})
-
-ipcMain.on('dragfile', (event, filePath) => {
-  event.sender.startDrag({
-    file: filePath,
+    file: await webpToGif(filePath),
     icon: path.join(__dirname, '..', '..', 'build/icon.png'),
   })
 })

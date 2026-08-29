@@ -1,3 +1,4 @@
+const fs = require('fs')
 const { ipcRenderer } = require('electron')
 
 const { ELEMENTS } = require('../../../utils/elements')
@@ -20,6 +21,8 @@ class VideoFile {
     this.file = await this.createFile(blobFile)
     this.name = CONSTANTS.videoFilePath()
     this.arrayBuffer = await this.file.arrayBuffer()
+    // grava ja aqui, senao o arquivo so existiria ao arrastar e nao apareceria na biblioteca
+    fs.writeFileSync(this.name, Buffer.from(this.arrayBuffer))
     // src por ultimo: onloadeddata le arrayBuffer, entao ele precisa existir antes
     this.el.src = URL.createObjectURL(this.file)
     return this
@@ -53,8 +56,7 @@ class VideoFile {
 
     this.el.ondragstart = (event) => {
       event.preventDefault()
-      const buffer = Buffer.from(this.arrayBuffer)
-      ipcRenderer.send('dragstart', { buffer, name: this.name })
+      ipcRenderer.send('dragfile', this.name)
     }
   }
 }

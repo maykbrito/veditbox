@@ -1,3 +1,4 @@
+const fs = require('fs')
 const { ipcRenderer } = require('electron')
 const { ELEMENTS } = require('../../../utils/elements')
 const mainArea = ELEMENTS.mainArea
@@ -20,6 +21,8 @@ class ImageFile {
     this.fileType = this.fileType || 'png'
     this.name = CONSTANTS.imageFilePath(this.fileType)
     this.arrayBuffer = await this.file.arrayBuffer()
+    // grava ja aqui, senao o arquivo so existiria ao arrastar e nao apareceria na biblioteca
+    fs.writeFileSync(this.name, Buffer.from(this.arrayBuffer))
     // src por ultimo: onload le name/arrayBuffer, entao eles precisam existir antes
     this.el.src = URL.createObjectURL(this.file)
     return this
@@ -46,10 +49,9 @@ class ImageFile {
       window.activeThing = { dispose: () => {} }
     }
 
-    this.el.ondragstart = async (event) => {
+    this.el.ondragstart = (event) => {
       event.preventDefault()
-      const buffer = Buffer.from(this.arrayBuffer)
-      ipcRenderer.send('dragstart', { buffer, name: this.name})
+      ipcRenderer.send('dragfile', this.name)
     }
   }
 

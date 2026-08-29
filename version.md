@@ -19,6 +19,8 @@
 
 ### Fix
 
+* Imagem/áudio colado ou gravado só ia pro disco ao arrastar, então nunca
+  aparecia na biblioteca; agora salva assim que é carregado
 * Colar imagem do clipboard travava em "reading it..." — `generate()` não era
   aguardado e o `onload` estourava em `arrayBuffer.byteLength` antes da hora
 * Links do Giphy nunca eram reconhecidos ao colar

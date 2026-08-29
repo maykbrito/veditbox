@@ -1,4 +1,5 @@
 const { Buffer } = require('buffer')
+const fs = require('fs')
 const { ipcRenderer } = require('electron')
 const { createWaveformDisplay } = require('./waveform-display.js')
 
@@ -137,11 +138,13 @@ async function toggleRecording({ noiseSuppression }) {
       audio.remove()
     })
 
+    // grava ja aqui, senao o audio so existiria ao arrastar e nao apareceria na biblioteca
+    fs.writeFileSync(name, Buffer.from(waveBuffer))
+
     waveformEl.draggable = true
     waveformEl.ondragstart = (event) => {
       event.preventDefault()
-      const buffer = Buffer.from(waveBuffer)
-      ipcRenderer.send('dragstart', { buffer, name })
+      ipcRenderer.send('dragfile', name)
     }
   }
 }

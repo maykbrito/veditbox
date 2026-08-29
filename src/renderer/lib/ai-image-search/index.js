@@ -174,8 +174,7 @@ class AIImageSearch {
             try {
                 const imageFile = new ImageFile(result.url)
                 await imageFile.generate()
-                const buffer = Buffer.from(imageFile.arrayBuffer)
-                ipcRenderer.send('dragstart', { buffer, name: imageFile.name })
+                ipcRenderer.send('dragfile', imageFile.name)
             } catch (error) {
                 console.error('Error preparing image for drag:', error)
                 showStatus('Error preparing image for drag', 'red')
