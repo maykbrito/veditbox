@@ -9,6 +9,7 @@ const { CONSTANTS } = require('../../../../utils/constants')
 
 const { showStatus } = require('../../../../utils/show-status')
 const { getMediaStream } = require('./media-stream.js')
+const { setTab } = require('../../../../utils/set-tab')
 
 window.onkeydown = (e) => {
   if (!e.altKey && !e.ctrlKey && !e.metaKey) {
@@ -30,6 +31,7 @@ async function toggleRecording({ noiseSuppression }) {
   if (window.activeThing.isRecording) {
     window.activeThing.finishRecording()
   } else {
+    setTab('audio')
     showStatus('Recording audio...')
 
     let disposed = false

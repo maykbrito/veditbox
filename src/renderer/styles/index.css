@@ -28,28 +28,85 @@
   box-sizing: border-box;
 }
 
+img, video {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
 body {
-  background: var(--gray-200);
+  background: var(--gray-100);
   user-select: none;
   color: var(--white);
   font: 10px monospace;
 }
+
 #appLayout {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 78px 1fr;
+  grid-template-rows: max-content 1fr;
+  height: 100vh;
+  align-items: start;
 }
 
-img {
+#menu {
+  padding: 4px;
+  grid-row: 1/3;
+  height: 100vh;
+  background: var(--gray-200);
+  box-shadow: 0 2rem 4rem -1rem black;
+
+  display: grid;
+  align-items: start;
+  grid-template-rows: max-content 1fr max-content;
+}
+
+#menu h2 {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 4px;
+  height: 50px;
+  color: var(--gray-100);
+  background: var(--pink);
+  border-radius: 6px;
+}
+
+#menu ul {
+  display: grid;
+  gap: .5rem;
+  margin-top: 50%;
+}
+
+#menu ul li,
+.button {
+  all: unset;
+  
+  display: grid;
+  place-content: center;
+  
   width: 100%;
-  height: auto;
+  height: 50px;
+
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.button:hover,
+.button.active,
+#menu ul li:hover,
+#menu ul li.active {
+  backdrop-filter: brightness(210%);
 }
 
 #topBar {
-  padding: 1rem;
+  padding: 8px;
   display: flex;
   align-items: center;
   width: 100%;
   justify-content: space-between;
+  box-shadow: 1rem 0 1rem 0rem black;
+  background: var(--gray-200);
 }
 
 #settingsForm,
@@ -58,6 +115,16 @@ img {
   align-items: center;
   gap: 0.8rem;
   height: 20px;
+}
+
+#mainWrapper {
+  overflow: hidden;
+}
+
+#mainWrapper,
+#mainArea {
+  width: 100%;
+  height: 100%;
 }
 
 .waveform-display {
@@ -84,31 +151,12 @@ img {
 }
 
 video {
-  width: 100%;
-  height: auto;
   display: block;
   margin-inline: auto;
 }
 
 #helpBtn {
-  all: unset;
-  border: 1px solid rgb(255 255 255 / 0.6);
-  border-radius: 50%;
-  line-height: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  height: 24px;
-  width: 24px;
-
-  font-size: 12px;
-
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-
-  cursor: pointer;
+  margin-bottom: 8px;
 }
 
 dialog::backdrop {
@@ -155,4 +203,119 @@ dialog button {
   position: relative;
   left: 94%;
   transform: translateX(-50%);
+}
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 8px;
+  overflow-y: auto;
+  max-height: 100%;
+  align-content: start;
+}
+
+.library-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--gray-200);
+  cursor: grab;
+}
+
+/* spacer que dá altura real ao track do grid (aspect-ratio sozinho colapsa a linha) */
+.library-item::before {
+  content: '';
+  display: block;
+  padding-top: 100%;
+}
+
+.library-item:hover {
+  outline: 2px solid var(--pink);
+}
+
+.library-item > * {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.library-audio {
+  display: grid;
+  place-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 3rem;
+  color: var(--light-purple);
+}
+
+.library-empty {
+  display: grid;
+  place-content: center;
+  height: 100%;
+  color: var(--gray-500);
+}
+
+.library-preview {
+  display: grid;
+  grid-template-rows: max-content 1fr;
+  gap: 8px;
+  padding: 8px;
+  height: 100%;
+  min-height: 0;
+}
+
+.library-preview > :last-child {
+  min-height: 0;
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+.library-preview audio {
+  align-self: center;
+  height: 40px;
+}
+
+.library-back {
+  all: unset;
+  justify-self: start;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--gray-300);
+  color: var(--white);
+  cursor: pointer;
+}
+
+.library-back:hover {
+  background: var(--purple);
+}
+
+/* frame sem barra de titulo: abre espaco pros traffic lights e deixa a topBar arrastar a janela */
+#menu {
+  padding-top: 44px;
+}
+
+#topBar {
+  -webkit-app-region: drag;
+}
+
+#topBar input,
+#topBar label {
+  -webkit-app-region: no-drag;
+}
+
+.tab-label {
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+#menu h2 {
+  cursor: pointer;
+}
+
+#menu h2:active {
+  transform: scale(0.96);
 }

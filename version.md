@@ -1,5 +1,27 @@
 # Versions
 
+## Unreleased
+
+### New
+
+* Biblioteca: grid dos arquivos de `~/veditbox`, filtrado pelas abas do menu
+* Preview ao clicar num arquivo, com botão de voltar
+* Abas do menu refletem o tipo do que foi colado/gravado
+* Logo do menu vira botão de home
+
+### Update
+
+* Electron 33 + electron-builder 25
+* Frame sem barra de título (`hiddenInset`), alinhado com o conteúdo
+* Aba de GIF usa texto em vez de ícone ambíguo
+* CI: Node 20 e actions v4
+* yt-dlp: usa o binário do Homebrew quando existe
+
+### Fix
+
+* Links do Giphy nunca eram reconhecidos ao colar
+* Home voltou a ser simples: busca de imagem não monta mais no boot
+
 ## 1.0.3
 
 * small code improvements and refactor

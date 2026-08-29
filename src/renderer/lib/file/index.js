@@ -1,67 +1,54 @@
 const { showStatus } = require('../../../utils/show-status')
+const { setTab } = require('../../../utils/set-tab')
 const { getHandlers } = require('./handlers.js')
 
 const { ELEMENTS } = require('../../../utils/elements')
 const mainArea = ELEMENTS.mainArea
 
+// Ordem importa: o primeiro match vence.
+// [regex da url, nome do handler em handlers.js, aba do menu]
+const ROUTES = [
+  [/giphy\.com/i, 'giphy', 'gif'],
+  [/\.gif(\?|$)/i, 'image', 'gif'],
+  [/(twitter|x\.com|instagram|youtube|youtu\.be|tiktok)/i, 'customSocialDownloader', 'video'],
+  [/pexels/i, 'pexels', 'video'],
+  [/\.(mp4|webm|mov)(\?|$)/i, 'mp4', 'video'],
+  [/\.(png|jpe?g|webp|avif|svg)(\?|$)/i, 'image', 'image'],
+]
+
 // Paste content from clipboard
 document.onpaste = async (e) => {
   e.preventDefault()
-  let isUrl = (e.clipboardData || window.clipboardData).getData('text')
-
-  const urlOrFile = !isUrl ? e.clipboardData.files[0] : isUrl
-
-  handlePaste(urlOrFile)
+  const text = (e.clipboardData || window.clipboardData).getData('text')
+  handlePaste(text || e.clipboardData.files[0])
 }
 
 async function handlePaste(urlOrFile) {
-  const url = typeof urlOrFile === 'string' ? urlOrFile : null
-
-  const custom = ['mp4', 'pexels']
-  const imagesType = ['.png', '.gif', '.jpg', '.jpeg', '.webp']
-  const customSocialMedia = ['twitter', 'instagram', 'youtube']
-  const allowed = [...custom, ...imagesType, ...customSocialMedia]
-
-  const handlers = getHandlers(url)
-
-  // If we not have a url, we assume it's a file
-  if (!url) {
-    processHandler(handlers.image(urlOrFile))
+  // Sem url = é um arquivo colado
+  if (typeof urlOrFile !== 'string') {
+    setTab('image')
+    processHandler(getHandlers(null).image(urlOrFile))
     return
   }
 
-  // Let's look for a handler
-  let handler = allowed.find((type) => {
-    const urlHasType = url.includes(type)
+  const url = urlOrFile.trim()
+  const route = ROUTES.find(([pattern]) => pattern.test(url))
 
-    const imageType = imagesType.includes(type) ? 'image' : type
-    const customSocialType = customSocialMedia.includes(type)
-      ? 'customSocialDownloader'
-      : type
+  if (!route) {
+    showStatus(`Não reconheci esse link: ${url}`, 'orange')
+    return
+  }
 
-    const imageOrCustomSocialOrType =
-      imageType != type ? imageType : customSocialType
-    const hasFunction = Object.keys(handlers).includes(
-      imageOrCustomSocialOrType,
-    )
+  const [, handlerName, tab] = route
 
-    return hasFunction && urlHasType
-  })
-
-  // handler found!
-  if (handler) {
-    if (imagesType.includes(handler)) {
-      handler = 'image'
-    } else if (customSocialMedia.includes(handler)) {
-      handler = 'customSocialDownloader'
-    }
-
-    try {
-      const handlerResult = await handlers[handler]()
-      processHandler(handlerResult)
-    } catch (error) {
-      showStatus(error, 'red')
-    }
+  try {
+    setTab('download')
+    showStatus('Baixando...')
+    processHandler(await getHandlers(url)[handlerName]())
+    setTab(tab)
+  } catch (error) {
+    setTab('download')
+    showStatus(error.message || String(error), 'red')
   }
 }
 

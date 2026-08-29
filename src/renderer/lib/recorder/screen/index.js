@@ -3,6 +3,7 @@ const { getVideoSources, createMediaRecorder } = require('./video-sources')
 const { showStatus } = require('../../../../utils/show-status')
 
 const { ELEMENTS } = require('../../../../utils/elements')
+const { setTab } = require('../../../../utils/set-tab')
 const mainArea = ELEMENTS.mainArea
 
 // start default video source
@@ -35,6 +36,7 @@ ipcRenderer.on('stopScreenRecorder', async () => {
 })
 
 function previewVideo() {
+  setTab('video')
   mainArea.innerHTML = ''
   const videoPlayer = document.createElement('video')
   videoPlayer.setAttribute('autoplay', true)
