@@ -27,7 +27,7 @@ async function handlePaste(urlOrFile) {
   // Sem url = é um arquivo colado
   if (typeof urlOrFile !== 'string') {
     setTab('image')
-    processHandler(getHandlers(null).image(urlOrFile))
+    await processHandler(getHandlers(null).image(urlOrFile))
     return
   }
 
@@ -44,7 +44,7 @@ async function handlePaste(urlOrFile) {
   try {
     setTab('download')
     showStatus('Baixando...')
-    processHandler(await getHandlers(url)[handlerName]())
+    await processHandler(await getHandlers(url)[handlerName]())
     setTab(tab)
   } catch (error) {
     setTab('download')
@@ -54,8 +54,8 @@ async function handlePaste(urlOrFile) {
 
 function processHandler({ message, handle }) {
   showStatus(message)
-  handle.generate()
   window.activeThing.dispose()
   mainArea.innerHTML = ''
   handle.setEvents(showStatus)
+  return handle.generate()
 }

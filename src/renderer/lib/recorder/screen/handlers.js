@@ -39,9 +39,9 @@ async function onstop() {
   fs.unlinkSync(videoFilePath + '.webm')
   
   const video = new VideoFile(videoFilePath)
-  await video.generate()
   mainArea.innerHTML = ''
   video.setEvents(showStatus)
+  await video.generate()
 }
 
 async function ondataavailable(e) {

@@ -17,10 +17,11 @@ class ImageFile {
 
   async generate() {
     this.file = this.file || (await this.createFile())
-    this.el.src = URL.createObjectURL(this.file)
     this.fileType = this.fileType || 'png'
     this.name = CONSTANTS.imageFilePath(this.fileType)
     this.arrayBuffer = await this.file.arrayBuffer()
+    // src por ultimo: onload le name/arrayBuffer, entao eles precisam existir antes
+    this.el.src = URL.createObjectURL(this.file)
     return this
   }
 

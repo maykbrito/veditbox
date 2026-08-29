@@ -18,9 +18,10 @@ class VideoFile {
 
   async generate(blobFile = null) {
     this.file = await this.createFile(blobFile)
-    this.el.src = URL.createObjectURL(this.file)
     this.name = CONSTANTS.videoFilePath()
     this.arrayBuffer = await this.file.arrayBuffer()
+    // src por ultimo: onloadeddata le arrayBuffer, entao ele precisa existir antes
+    this.el.src = URL.createObjectURL(this.file)
     return this
   }
 

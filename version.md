@@ -1,6 +1,6 @@
 # Versions
 
-## Unreleased
+## 1.1.0
 
 ### New
 
@@ -19,6 +19,8 @@
 
 ### Fix
 
+* Colar imagem do clipboard travava em "reading it..." — `generate()` não era
+  aguardado e o `onload` estourava em `arrayBuffer.byteLength` antes da hora
 * Links do Giphy nunca eram reconhecidos ao colar
 * Home voltou a ser simples: busca de imagem não monta mais no boot
 
