@@ -1,5 +1,36 @@
 # Versions
 
+## Não lançado
+
+### New
+
+* Índice de metadados em `~/veditbox/.veditbox/index.json`: guarda a URL de
+  origem, título, tags e notas de cada arquivo. Escrita atômica (tmp + rename)
+  com debounce de 500ms, porque a pasta pode estar sincronizada na nuvem
+* A URL de origem finalmente é gravada. Antes era descartada no momento de
+  salvar — inclusive nos downloads via yt-dlp, onde a URL da página já tinha
+  virado caminho local antes de chegar no modelo
+* Reconciliação na abertura: arquivo novo na pasta é adotado, e entrada sem
+  arquivo vira *tombstone* em vez de ser apagada. Mover um arquivo pra fora e
+  devolver não destrói mais título, tags e notas
+* Cache de thumbnails em `$TMPDIR/veditbox`, 320px, gerado sob demanda pelo
+  ffmpeg já embarcado. No máximo 4 processos simultâneos. Fica fora da
+  biblioteca de propósito: thumb é regenerável e não deve consumir cota de sync
+
+### Update
+
+* Grid: toda célula agora é `<img>` do thumbnail, inclusive vídeo. Antes o
+  grid instanciava um `<video preload="metadata">` por arquivo — 29 decoders
+  numa pasta de 90 itens, que era a causa real da lentidão. Agora são 0 em
+  repouso, e o `<video>` só existe no item sob o cursor, um por vez
+* Grid carrega ~60 itens por vez com `IntersectionObserver`; o mesmo observer
+  dispara o próximo lote e a geração do thumbnail
+* CSS do grid saiu do `index.css` para `styles/grid.css`
+
+### Fix
+
+* Trocar de aba ou voltar pra home não deixa mais vídeo tocando escondido
+
 ## 1.1.0
 
 ### New
