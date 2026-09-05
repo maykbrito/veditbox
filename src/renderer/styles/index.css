@@ -9,11 +9,9 @@
 }
 
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* o reset (* { margin:0; padding:0; box-sizing:border-box }) vem do @layer base
+   do Franken, que faz exatamente isso. Mantê-lo aqui, SEM layer, vencia o
+   padding de todo componente uk-* — o .uk-card-body do dialog media 0px. */
 
 img, video {
   object-fit: contain;
@@ -150,18 +148,12 @@ dialog::backdrop {
   background-color: rgb(12 12 12 / 0.8);
 }
 
+/* cor, radius, sombra e padding vem de .uk-card.uk-card-body, que le
+   --card / --card-foreground / --border / --uk-global-radius (theme.css) */
 dialog {
   width: 80%;
-  padding: 2rem 1.5rem 1.5rem 2rem;
   margin: auto;
-  
-  background-color: var(--gray-200);
-  color: var(--white);
-  box-shadow: 0 0 1em rgb(0 0 0 / 0.1);
-  
   border: none;
-  border-radius: 8px;
-
 }
 
 dialog h2, dialog p{
@@ -177,19 +169,9 @@ dialog p span {
 }
 
 dialog button {
-  font-size: 10px;
-  font-weight: bold;
-  text-transform: uppercase;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 8px;
-  background: var(--green);
-  color: var(--gray-100);
-  cursor: pointer;
   margin-top: 1rem;
-  position: relative;
-  left: 94%;
-  transform: translateX(-50%);
+  margin-left: auto;
+  display: block;
 }
 .library-grid {
   display: grid;
