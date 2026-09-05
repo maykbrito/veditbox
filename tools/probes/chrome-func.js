@@ -74,6 +74,11 @@
   // A Fase 3 trocou `window.onkeydown = ...` por addEventListener (a atribuicao
   // era o alcapao do §8.0), entao onkeydown agora e null DE PROPOSITO. O que
   // prova que o handler vive e a tecla funcionar — ver probe `focus-guard`.
+  const fs = require('fs')
+  const { CONSTANTS } = require('../utils/constants') // resolve a partir de src/renderer/
+  const pasta = CONSTANTS.destDownloadFolder
+  const listar = () => new Set(fs.readdirSync(pasta))
+  const antesDosArquivos = listar()
   const statusAntes = document.querySelector('#statusText').textContent
   window.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', bubbles: true }))
   await espera(900)
@@ -85,7 +90,15 @@
     statusAntes: statusAntes.slice(0, 30),
   }
   window.activeThing.dispose()
-  await espera(300)
+  // a gravacao escreve o .wav no disco; o probe nao pode deixar lixo na
+  // biblioteca do usuario (§ probes que escrevem, tools/probes/README.md)
+  await espera(1200)
+  resultado.teclado.wavsRemovidos = [...listar()]
+    .filter((f) => !antesDosArquivos.has(f))
+    .map((f) => {
+      fs.unlinkSync(pasta + '/' + f)
+      return f
+    })
 
 
   return resultado

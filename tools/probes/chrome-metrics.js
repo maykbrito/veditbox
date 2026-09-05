@@ -41,7 +41,10 @@
     dialogsNoDocumento: document.querySelectorAll('dialog').length,
 
     // §8.0: ninguem pode apagar o window.onkeydown do gravador de audio
-    onkeydownVivo: typeof window.onkeydown === 'function',
+    // §8.0: `window.onkeydown = ...` e o alcapao, nao a saude. A Fase 3 trocou
+    // por addEventListener, entao o esperado aqui e FALSE. Quem prova que o
+    // atalho vive e o probe `focus-guard`.
+    onkeydownEhAtribuicao: typeof window.onkeydown === 'function',
 
     // trafficLightPosition que ESSAS medidas exigem.
     //   y = (altura da topBar - 12) / 2   |  x = (largura do menu - 52) / 2

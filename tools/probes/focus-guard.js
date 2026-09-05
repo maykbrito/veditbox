@@ -20,6 +20,16 @@
 
   const resultado = {}
 
+// O controle negativo GRAVA DE VERDADE, e o gravador escreve o .wav no disco
+// assim que a gravacao termina (nao so ao arrastar). Sem esta limpeza, cada
+// rodada do probe deixa um arquivo de ~30KB na biblioteca do usuario — foi o
+// que aconteceu tres vezes antes de alguem reparar na contagem do grid.
+const fs = require('fs')
+const { CONSTANTS } = require('../utils/constants') // resolve a partir de src/renderer/
+const pasta = CONSTANTS.destDownloadFolder
+const listar = () => new Set(fs.readdirSync(pasta))
+  const antesDosArquivos = listar()
+
   // ---- caso positivo: input dentro de <dialog open> ----
   const d = document.createElement('dialog')
   const i = document.createElement('input')
@@ -58,9 +68,15 @@
   resultado.controleNegativoGravou = gravando()
   resultado.statusControleNegativo = status().slice(0, 40)
 
-  // encerra a gravacao pra nao deixar wav de lixo na biblioteca
+  // encerra a gravacao e APAGA o wav que ela gravou
   if (window.activeThing.dispose) window.activeThing.dispose()
-  await espera(300)
+  await espera(1200)
+  resultado.wavsRemovidos = [...listar()]
+    .filter((f) => !antesDosArquivos.has(f))
+    .map((f) => {
+      fs.unlinkSync(pasta + '/' + f)
+      return f
+    })
 
   // §8.0: o handler tem que existir como LISTENER, nunca como atribuicao
   resultado.onkeydownEhAtribuicao = typeof window.onkeydown === 'function'
@@ -71,7 +87,9 @@
     resultado.gravandoDepoisDeDigitar === false &&
     resultado.eventoSobeAteWindow === true &&
     resultado.controleNegativoGravou === true &&
-    resultado.onkeydownEhAtribuicao === false
+    resultado.onkeydownEhAtribuicao === false &&
+    // o probe nao pode sujar a biblioteca do usuario
+    resultado.wavsRemovidos.length === 1
 
   return resultado
 })()
