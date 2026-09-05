@@ -586,6 +586,45 @@ Você vence por especificidade, mas tem que desfazer **campo a campo**: `width` 
 **Isso atinge diretamente o checkbox de seleção da Fase 2**, que é filho de
 célula. Medir os computed styles é obrigatório — a quebra é silenciosa.
 
+### 10.10 CORREÇÃO de §7: não existe diretório fixo de Lixeira
+
+**§7 está errado** ao afirmar que `trashItem` coloca o arquivo em `~/.Trash`. O
+"mesmo nome" confere; o diretório não.
+
+Eu "verifiquei" isso na fase de brainstorm — mas testei com um arquivo em
+`os.tmpdir()`, que fica no volume APFS principal. Os arquivos reais da biblioteca
+vivem no **Google Drive** (`~/veditbox` é symlink), e **a Lixeira é por volume**.
+
+Medido pela Fase 2:
+
+| origem do arquivo | foi para `~/.Trash`? | foi para o `.Trash` do Drive? |
+|---|---|---|
+| volume local | sim | — |
+| `~/veditbox` | **não** | **sim** |
+
+Nas palavras dela: *um undo com `~/.Trash` fixo teria falhado 100% das vezes na
+biblioteca real*. Testei o mecanismo certo no lugar errado — o pior tipo de
+verificação, porque produz confiança injustificada.
+
+**Correção:** `trashFiles` **descobre** para onde o arquivo caiu (candidatas
+`.Trash` e `.Trashes/<uid>` subindo os ancestrais, aceitando só a que ganhou o
+nome agora) e devolve `trashedPath`. A pilha de undo guarda esse caminho, e
+desfazer vira um `rename` de caminho conhecido.
+
+Detalhe operacional: `readdir` em `~/.Trash` dá `EPERM` por TCC, mas
+`existsSync`/`statSync` em caminho exato funcionam. A implementação não lista
+diretório.
+
+### 10.11 Nem todo arquivo é apagável
+
+Os dois `.mp4` de 0 byte não vão para a Lixeira: o Google Drive recusa a
+operação e `shell.trashItem` falha.
+
+Isso não é defeito — é o caminho de **falha parcial** de §7, e foi testado como
+tal: um lote de 3 onde 1 sai e 2 ficam. O app **relata por item** em vez de
+afirmar que apagou tudo, e os que ficaram seguem no índice, coerentes com o
+disco.
+
 ### Paralelismo real
 
 Honestidade sobre limites:
