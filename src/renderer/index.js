@@ -28,3 +28,6 @@ require('./lib/library.js')
 
 // Configure status message
 showStatus('Paste image, url or use shortcuts do record audio/video')
+
+// indice de metadados (fase 1) — append-only por §10.1
+require('./lib/boot.js')

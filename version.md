@@ -1,8 +1,21 @@
 # Versions
 
-## Em desenvolvimento
+## Não lançado
 
 ### New
+
+* Índice de metadados em `~/veditbox/.veditbox/index.json`: guarda a URL de
+  origem, título, tags e notas de cada arquivo. Escrita atômica (tmp + rename)
+  com debounce de 500ms, porque a pasta pode estar sincronizada na nuvem
+* A URL de origem finalmente é gravada. Antes era descartada no momento de
+  salvar — inclusive nos downloads via yt-dlp, onde a URL da página já tinha
+  virado caminho local antes de chegar no modelo
+* Reconciliação na abertura: arquivo novo na pasta é adotado, e entrada sem
+  arquivo vira *tombstone* em vez de ser apagada. Mover um arquivo pra fora e
+  devolver não destrói mais título, tags e notas
+* Cache de thumbnails em `$TMPDIR/veditbox`, 320px, gerado sob demanda pelo
+  ffmpeg já embarcado. No máximo 4 processos simultâneos. Fica fora da
+  biblioteca de propósito: thumb é regenerável e não deve consumir cota de sync
 
 * Design system: Franken UI 2.1.2 vendorizado em
   `src/renderer/lib/vendor/franken-ui` (local, sem CDN — o app funciona offline e
@@ -14,12 +27,22 @@
 
 ### Update
 
+* Grid: toda célula agora é `<img>` do thumbnail, inclusive vídeo. Antes o
+  grid instanciava um `<video preload="metadata">` por arquivo — 29 decoders
+  numa pasta de 90 itens, que era a causa real da lentidão. Agora são 0 em
+  repouso, e o `<video>` só existe no item sob o cursor, um por vez
+* Grid carrega ~60 itens por vez com `IntersectionObserver`; o mesmo observer
+  dispara o próximo lote e a geração do thumbnail
+* CSS do grid saiu do `index.css` para `styles/grid.css`
+
 * Dialog de ajuda, sidebar e topBar usam componentes do Franken (`uk-card`,
   `uk-btn`, `uk-checkbox`). O dialog continua `<dialog>` nativo com `showModal()`
 * `#topBar` tem altura fixa de 36px, agora declarada — o `trafficLightPosition`
   do processo main depende dela
 
 ### Fix
+
+* Trocar de aba ou voltar pra home não deixa mais vídeo tocando escondido
 
 * `elements.js` pegava o dialog de ajuda com `querySelector('dialog')`: o
   primeiro `<dialog>` do documento sequestraria o botão de ajuda assim que
