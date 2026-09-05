@@ -86,17 +86,25 @@ recriaria, criando uma disputa por um fato que ninguém precisa opinar.
     "url": "https://www.facebook.com/reel/892819649954687",
     "titulo": "",
     "tags": [],
-    "notes": "",
-    "largura": 720,
-    "altura": 1280
+    "notes": ""
   }
 }
 ```
 
-Três campos do usuário (`titulo`, `tags`, `notes`), um de procedência (`url`),
-dois caros de recalcular (dimensões).
+Três campos do usuário (`titulo`, `tags`, `notes`) e um de procedência (`url`).
 
 `notes` é anotação livre, pesquisável.
+
+### 3.1 EMENDA — dimensões removidas
+
+`largura`/`altura` saíram do schema. A Fase 1 apontou dois fatos que eu não
+tinha: **não há consumidor** delas em nenhuma fase, e `@ffmpeg-installer` **não
+embarca ffprobe**, então arquivo legado só ganharia dimensão ao abrir preview —
+um índice permanentemente incompleto para um dado que ninguém lê.
+
+Aplico aqui a mesma régua que cortou `tipo`, `origem` e `adicionadoEm`: não
+armazenar sem consumidor. Volta quando algo precisar (ex: aspect-ratio real no
+grid), e aí a discussão do ffprobe acontece com motivo.
 
 **Derivação de data** — o nome vem de `new Date().toJSON().replace(/\W/g, '')`:
 
@@ -118,12 +126,27 @@ Verificado contra arquivos reais da pasta e contra o formato gerado hoje.
 Roda **apenas na abertura do app**. Sem watcher, sem sincronização contínua.
 
 - arquivo na pasta sem entrada no índice → **adota**, `url` vazia
-- entrada no índice sem arquivo na pasta → **poda**
+- entrada no índice sem arquivo na pasta → **arquiva como tombstone** (ver 4.1)
 - índice nunca escreve na pasta
+
+### 4.1 EMENDA — poda vira tombstone
+
+A Fase 1 apontou perda silenciosa: mover o arquivo pra fora, abrir o app e
+devolver apagaria título, tags e notas. Era o que §2.1 e §4 mandavam, mas é
+destruição de dado do usuário por um passeio no Finder.
+
+Entrada sem arquivo vai para uma seção `arquivadas` do índice em vez de ser
+deletada. Se o arquivo reaparecer com o mesmo nome, os metadados voltam com ele.
+Custo: alguns KB de JSON. Filesystem continua vencendo sobre o que é *exibido* —
+tombstone não aparece no grid.
 
 Órfãos adotados ficam com `url` vazia e são alcançáveis por um filtro
 "sem origem". Deliberadamente **não** recebem tag automática — o app não escreve
 em tags.
+
+**Escrita com debounce (~500ms):** `~/veditbox` **já é symlink para o Google
+Drive** nesta máquina (achado independente das Fases 0 e 1). Sem debounce,
+editar tags viraria um upload por tecla digitada. Não muda a API do store.
 
 **Escrita atômica:** grava em `index.json.tmp` e renomeia por cima. `rename` é
 atômico no mesmo volume, então uma queda no meio preserva o índice anterior.
@@ -254,6 +277,20 @@ mesmo array já filtrado.
 **Filtros por aba** continuam por tipo derivado da extensão, independentes da
 busca. Mais o filtro "sem origem".
 
+### 8.0 PERIGO — `window.onkeydown` é atribuição, não listener
+
+Achado da Fase 2, vale para **todas** as fases:
+`src/renderer/lib/recorder/audio/index.js` faz `window.onkeydown = ...`. Uma
+segunda atribuição em qualquer arquivo **apaga a gravação por atalho em
+silêncio**, sem erro.
+
+Toda fase que registrar teclado usa `addEventListener`, nunca atribuição, e
+inclui regressão apertando `r` e espaço.
+
+Nota da Fase 2: a guarda de foco de §8.1 não é necessária para atalhos com
+`metaKey` (o handler de áudio já sai cedo em `!metaKey`). Ela continua
+**obrigatória para a Fase 3**, cujo campo de busca recebe letras soltas.
+
 ### 8.1 Correção obrigatória: atalhos cientes de foco
 
 O gravador de áudio registra `window.onkeydown` e captura `r` e espaço
@@ -281,7 +318,32 @@ Cobre quase todo componente novo planejado:
 | Cmd+K | `Command` |
 | Pills de tag | `Badge` / `Label` |
 | Editar tags | `Input Tag` |
-| Confirmação | `Modal` |
+| Confirmação | `<dialog>` nativo, estilizado com Franken |
+
+### 9.1 EMENDA — decisões que a Fase 0 pediu
+
+**Confirmação destrutiva usa `dialog.showMessageBox` do processo main.**
+
+Esta emenda *substitui* minha decisão anterior (que era `<dialog>` HTML). A Fase
+2 argumentou melhor: `showMessageBox` evita o alçapão do `elements.js` por
+completo e, principalmente, **desacopla a Fase 2 do término da Fase 0** — que
+era exatamente o paralelismo prometido na §10 e que minha emenda tinha quebrado
+sem eu notar. É também o comportamento macOS correto para ação destrutiva: é o
+que o Finder faz.
+
+Regra resultante, por superfície:
+
+| Superfície | Mecanismo |
+|---|---|
+| Confirmação destrutiva | `dialog.showMessageBox` (main, nativo do SO) |
+| Palette Cmd+K, ajuda, sheet | `<dialog>` HTML, estilizado com Franken |
+
+`uk-modal` não é usado em lugar nenhum.
+
+**`elements.js:12` usa `querySelector('dialog')`**, que sequestra o botão de
+ajuda assim que qualquer outro `<dialog>` aparecer antes dele no DOM. A Fase 3
+achou o alçapão e corretamente não mexeu em arquivo compartilhado. **Correção é
+da Fase 0** (dona do chrome): dar `id="helpDialog"` e usar seletor por id.
 
 **Instalação: vendorizar local, não CDN.** Dois motivos que a documentação não
 cobre porque não pensa em desktop:
@@ -321,6 +383,54 @@ mão e refeitos em seguida.
 
 **Fase 3 — Busca, tags, sheet, pills.** Inclui a correção de §8.1.
 
+### API canônica do store (resolve suposições da Fase 2)
+
+A Fase 1 é dona do store; os nomes dela valem. A Fase 2 supôs
+`list/get/remove/put/save` — o correto é:
+
+`reconcile()`, `getAll()`, `get(nome)`, `setEntry(nome, patch)`,
+`addEntry(nome)`, `removeEntry(nome)`, `INDEX_PATH`.
+
+Grid: `showLibrary(tab)`, `renderGrid(items, tab)`, `getRenderedItems()`,
+`cellHooks`, `refresh()`. Cada célula tem `data-name` — confirma a suposição S2.
+
+Thumbs: `thumbPath(nome)`, `getThumb(item)`, `deleteThumb(nome)`.
+
+**Resolve S4:** a Fase 2 não deve montar o caminho do thumb à mão. Chama
+`deleteThumb(nome)`. Se o padrão de nome mudar, quem muda é a dona.
+
+### 10.1 Protocolo de merge (revisão cruzada dos 4 planos)
+
+A análise de arquivos citados nos quatro planos revelou colisões que nenhum
+plano isolado enxergava. Regras normativas:
+
+**Dono único por arquivo compartilhado.** Quem não é dono consome, não edita.
+
+| Arquivo | Dono | Demais |
+|---|---|---|
+| `src/main/index.js` | ninguém — ver append-only | uma linha cada |
+| `src/utils/elements.js` | Fase 0 (corrige `id="helpDialog"`) | consomem |
+| `src/renderer/styles/index.css` | Fase 0 | usam arquivo próprio |
+| `src/renderer/lib/library.js` | Fase 1 | consomem via `cellHooks`/`renderGrid` |
+| `src/renderer/lib/recorder/audio/index.js` | Fase 3 (guarda de foco) | Fase 2 só testa |
+
+**Regra append-only para `src/main/index.js` e `src/renderer/index.js`:** toda
+fase põe sua lógica em módulo próprio e acrescenta **uma única linha** de
+`require` no fim do arquivo. Nada de editar o bloco de imports do topo — é onde
+merges de quatro frentes explodem. A Fase 2 já fazia assim; agora vale para
+todas.
+
+**Fase 1 move o CSS do grid** de `index.css` para `styles/grid.css`. Isso
+elimina a colisão tripla (0/1/2) no `index.css` e dá dono único a ele.
+
+**Probe `grid-snapshot` da Fase 0** fixa o comportamento atual do grid. Quando a
+Fase 1 reescrever, ele falha por bom motivo: a Fase 1 **atualiza os valores
+esperados**, não deleta o probe.
+
+**Suposições S1 e S4 da Fase 2 estão erradas** (o store é `media-index.js`, não
+`library/store.js`; o thumb se apaga com `deleteThumb()`, não montando caminho).
+Corrigidas em §10 acima — reler antes de implementar.
+
 ### Paralelismo real
 
 Honestidade sobre limites:
@@ -331,6 +441,10 @@ Honestidade sobre limites:
   colisão de arquivo), desde que derivem deste contrato.
 - **Fases 2 e 3: paralelizáveis** após a 1 — áreas distintas (barra de seleção +
   ipc de lixeira vs palette + sheet).
+
+**A ordem de merge é 0 → 1 → (2 ‖ 3).** Como a Fase 0 aterrissa antes, a Fase 3
+**pode assumir Franken UI disponível** e usar `Offcanvas` e `Input Tag`
+diretamente, sem o `<aside>` provisório.
 
 ---
 
