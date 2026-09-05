@@ -25,8 +25,20 @@ de `require` no fim do main. Nada a reverter.
 | Probe | Mede |
 |---|---|
 | `chrome-metrics` | altura da topBar, largura do menu, tokens, custom elements do Franken, `trafficLightPosition` exigido |
-| `dialog` | abre/fecha o dialog de ajuda pelo `#helpBtn` e mede cores e botão |
+| `chrome-func` | clica em tudo (abas, logo, preview, checkbox, ajuda) e confere o comportamento |
+| `dialog` | abre/fecha o dialog de ajuda pelo `#helpBtn` e mede cores e padding |
 | `grid-snapshot` | computed style do grid — portão de fronteira contra invasão de escopo |
+
+## Comparar screenshots
+
+`compare` vem do ImageMagick, que o app já usa. Diferença de poucas centenas de
+pixels em bordas arredondadas e traços de ícone é antialiasing de subpixel, não
+regressão:
+
+```
+compare -metric AE /tmp/veditbox-antes.png /tmp/veditbox-probe-chrome-metrics.png /tmp/diff.png
+magick /tmp/diff.png -trim -format "regiao: %wx%h em +%X+%Y\n" info:
+```
 
 ## O invariante mais importante
 
@@ -57,3 +69,29 @@ trafficLightEsperado { x: 13, y: 12 }   erros []
 `grid-snapshot` fixa o comportamento **atual** do grid. Quando a Fase 1
 reescrever, ele vai falhar **por bom motivo**: atualize os valores esperados,
 não delete o probe (§10.1).
+
+Valores fixados pela Fase 0, com 90 arquivos em `~/veditbox`:
+
+```
+itens 90   gridColunas "158.328px 158.336px 158.328px"   gridGap 8px
+gridPadding 8px   item 158x158 (quadrado)   itemBg "rgb(25, 22, 34)"
+itemRadius 6px   itemCursor grab   itemOverflow hidden   itemDraggable true
+tagsDeThumb [IMG, IMG, DIV, IMG, VIDEO, IMG, IMG, VIDEO]
+```
+
+## Armadilha que a Fase 0 pagou (leia antes de usar componente do Franken)
+
+O `core.min.css` inteiro vive em `@layer theme, base, components, utilities`, e
+**CSS sem layer vence qualquer layer**. Isso é o que protege o app do Franken —
+mas corta dos dois lados: qualquer regra sem layer no `index.css` também vence o
+Franken, inclusive sem querer.
+
+O `index.css` tinha um `* { margin: 0; padding: 0; box-sizing: border-box }` sem
+layer. Ele zerava o padding de **todo** componente `uk-*`: o `.uk-card-body` do
+dialog media `0px`. A regra era redundante — o `@layer base` do Franken traz
+exatamente o mesmo reset — então a correção foi deletá-la.
+
+Padrão que sobrou: se um componente `uk-*` vier sem espaçamento ou com tamanho
+errado, procure a regra sem layer no `index.css` que está ganhando dele. Foi
+assim também com os ícones (`.uk-btn` dimensiona `svg` filho em 1rem e encolheu
+os ícones lucide de 24px para 16px — medido, corrigido com `#menu svg`).

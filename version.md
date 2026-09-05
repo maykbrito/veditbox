@@ -1,5 +1,33 @@
 # Versions
 
+## Em desenvolvimento
+
+### New
+
+* Design system: Franken UI 2.1.2 vendorizado em
+  `src/renderer/lib/vendor/franken-ui` (local, sem CDN — o app funciona offline e
+  a CSP bloqueia script externo)
+* `src/renderer/styles/theme.css` liga a paleta existente (`--gray-100`,
+  `--pink`, …) aos tokens do Franken, em triplete HSL
+* Probes de UI em `tools/probes/` e `tools/check-theme-tokens.js`: verificam o
+  app rodando, não compilando
+
+### Update
+
+* Dialog de ajuda, sidebar e topBar usam componentes do Franken (`uk-card`,
+  `uk-btn`, `uk-checkbox`). O dialog continua `<dialog>` nativo com `showModal()`
+* `#topBar` tem altura fixa de 36px, agora declarada — o `trafficLightPosition`
+  do processo main depende dela
+
+### Fix
+
+* `elements.js` pegava o dialog de ajuda com `querySelector('dialog')`: o
+  primeiro `<dialog>` do documento sequestraria o botão de ajuda assim que
+  outro aparecesse antes dele. Agora é por `#helpDialog`
+* O reset `* { margin: 0; padding: 0 }` zerava o padding de todo componente do
+  Franken (o dialog media 0px). Era redundante — o `@layer base` do Franken traz
+  o mesmo reset
+
 ## 1.1.0
 
 ### New
