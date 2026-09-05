@@ -70,8 +70,23 @@
     fechouPeloOk: !document.querySelector('#helpDialog').open,
   }
 
-  // 6. §8.0: o handler de teclado do gravador de audio continua vivo
-  resultado.teclado = { onkeydownVivo: typeof window.onkeydown === 'function' }
+  // 6. §8.0: o handler de teclado do gravador de audio continua vivo.
+  // A Fase 3 trocou `window.onkeydown = ...` por addEventListener (a atribuicao
+  // era o alcapao do §8.0), entao onkeydown agora e null DE PROPOSITO. O que
+  // prova que o handler vive e a tecla funcionar — ver probe `focus-guard`.
+  const statusAntes = document.querySelector('#statusText').textContent
+  window.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', bubbles: true }))
+  await espera(900)
+  resultado.teclado = {
+    onkeydownEhAtribuicao: typeof window.onkeydown === 'function',
+    teclaRGravou: document
+      .querySelector('#statusText')
+      .textContent.includes('Recording audio'),
+    statusAntes: statusAntes.slice(0, 30),
+  }
+  window.activeThing.dispose()
+  await espera(300)
+
 
   return resultado
 })()
