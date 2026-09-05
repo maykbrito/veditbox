@@ -1,0 +1,94 @@
+/* Ponte de tokens: a paleta do veditbox alimenta os tokens do Franken UI.
+ *
+ * O Franken guarda cor como triplete HSL sem hsl(), pra poder compor alfa:
+ *   hsl(var(--background) / 0.5)
+ * Por isso cada cor aparece duas vezes: o hex que index.css sempre usou, e o
+ * triplete equivalente. tools/check-theme-tokens.js falha se os dois divergirem.
+ *
+ * Este arquivo nao tem @layer de proposito: CSS sem layer vence qualquer layer,
+ * entao ele sobrepoe o @layer theme do core.min.css sem depender de ordem. */
+
+:root,
+.dark {
+  /* --- paleta (fonte unica; hex, como index.css sempre usou) --- */
+  --gray-100: #121214;
+  --gray-200: #191622;
+  --gray-300: #272234;
+  --white: #e1e1e6;
+  --gray-500: #41414d;
+  --purple: #5a4b81;
+  --light-purple: #988bc7;
+  --green: #67e480;
+  --orange: #e89e64;
+  --pink: #ff79c6;
+  --blue: #78d1e1;
+  --red: #e96379;
+  --yellow: #e7de79;
+
+  /* --- a mesma paleta em triplete HSL, pro Franken --- */
+  --hsl-gray-100: 240 5% 7%;
+  --hsl-gray-200: 255 21% 11%;
+  --hsl-gray-300: 257 21% 17%;
+  --hsl-white: 240 9% 89%;
+  --hsl-gray-500: 240 8% 28%;
+  --hsl-purple: 257 26% 40%;
+  --hsl-light-purple: 253 35% 66%;
+  --hsl-green: 132 70% 65%;
+  --hsl-orange: 26 74% 65%;
+  --hsl-pink: 326 100% 74%;
+  --hsl-blue: 189 64% 68%;
+  --hsl-red: 350 75% 65%;
+  --hsl-yellow: 55 70% 69%;
+
+  /* --- tokens do Franken --- */
+  /* fundo da app = gray-100, texto = white: exatamente o que o body ja faz */
+  --background: var(--hsl-gray-100);
+  --foreground: var(--hsl-white);
+
+  /* superficies elevadas = gray-200, igual a sidebar e a topBar de hoje */
+  --card: var(--hsl-gray-200);
+  --card-foreground: var(--hsl-white);
+  --popover: var(--hsl-gray-200);
+  --popover-foreground: var(--hsl-white);
+
+  /* pink e a cor de acao do app (logo, outline de hover do grid); texto por
+     cima e escuro porque o pink e claro demais pra receber texto claro */
+  --primary: var(--hsl-pink);
+  --primary-foreground: var(--hsl-gray-100);
+
+  --secondary: var(--hsl-gray-300);
+  --secondary-foreground: var(--hsl-white);
+  --accent: var(--hsl-purple);
+  --accent-foreground: var(--hsl-white);
+
+  --muted: var(--hsl-gray-300);
+  --muted-foreground: var(--hsl-gray-500);
+
+  --border: var(--hsl-gray-300);
+  --input: var(--hsl-gray-300);
+  --ring: var(--hsl-light-purple);
+
+  /* destrutivo = delete da Fase 2 (§7). red da paleta, nao o vermelho de fabrica */
+  --destructive: var(--hsl-red);
+  --destructive-foreground: var(--hsl-gray-100);
+
+  /* --- escala do Franken alinhada ao app --- *
+   * O Franken assume 16px/1.5rem. O app roda em 10px monospace, e a altura da
+   * topBar (36px) e contrato com o trafficLightPosition do processo main. Sem
+   * estes overrides, qualquer componente uk-* no chrome estica a barra e
+   * desalinha os botoes do macOS. */
+  --uk-global-font-size: 10px;
+  --uk-global-leading: 14px;
+  --uk-global-font-size-s: 9px;
+  --uk-global-leading-s: 12px;
+  --uk-global-font-family-sans: monospace;
+  --uk-global-font-family-mono: monospace;
+  --uk-global-radius: 6px;
+  --uk-global-radius-s: 4px;
+
+  /* botao compacto: 20px e a altura que a topBar ja reserva pro conteudo */
+  --uk-btn-font-size: 10px;
+  --uk-btn-leading: 14px;
+  --uk-btn-padding: 3px 10px;
+  --uk-btn-height: 20px;
+}
