@@ -1,0 +1,77 @@
+// Probe funcional do chrome: clica em tudo que a Fase 0 mexeu e confere que
+// os comportamentos que ja existiam continuam de pe.
+// Rode: VEDITBOX_PROBE=chrome-func yarn start
+;(async () => {
+  const espera = (ms) => new Promise((r) => setTimeout(r, ms))
+  const resultado = {}
+
+  // 1. cada aba responde ao clique, marca .active e renderiza a biblioteca
+  const abas = []
+  for (const li of document.querySelectorAll('#menu li[data-tab]')) {
+    li.click()
+    await espera(400)
+    abas.push({
+      tab: li.dataset.tab,
+      ficouAtiva: li.classList.contains('active'),
+      // uma aba so pode ter um .active por vez
+      ativasNoMenu: document.querySelectorAll('#menu li.active').length,
+      renderizou: !!document.querySelector('.library-grid, .library-empty'),
+      status: document.querySelector('#statusText').textContent.slice(0, 40),
+    })
+  }
+  resultado.abas = abas
+
+  // 2. logo volta pra home: limpa a area e desmarca todas as abas
+  document.querySelector('#menu h2').click()
+  await espera(300)
+  resultado.home = {
+    areaVazia: document.querySelector('#mainArea').children.length === 0,
+    nenhumaAbaAtiva: document.querySelectorAll('#menu li.active').length === 0,
+  }
+
+  // 3. preview abre e o botao voltar retorna pra lista
+  document.querySelector('#menu li[data-tab="image"]').click()
+  await espera(400)
+  const primeiro = document.querySelector('.library-item')
+  primeiro.click()
+  await espera(400)
+  const abriuPreview = !!document.querySelector('.library-preview')
+  document.querySelector('.library-back')?.click()
+  await espera(400)
+  resultado.preview = {
+    abriuPreview,
+    voltouPraLista: !!document.querySelector('.library-grid'),
+  }
+
+  // 4. checkbox de always-on-top: o uk-checkbox nao pode ter quebrado o form
+  const cb = document.querySelector('#settingsForm input[name=alwaysOnTop]')
+  const antes = cb.checked
+  cb.click()
+  await espera(150)
+  const marcou = cb.checked
+  cb.click()
+  await espera(150)
+  resultado.checkbox = {
+    comecouDesmarcado: antes === false,
+    marcouComClique: marcou === true,
+    desmarcouDeVolta: cb.checked === false,
+    // control-window.js le settingsForm.alwaysOnTop — o name tem que sobreviver
+    acessivelPeloName: !!document.querySelector('#settingsForm').alwaysOnTop,
+  }
+
+  // 5. dialog de ajuda pelo botao real
+  document.querySelector('#helpBtn').click()
+  await espera(200)
+  const dialogAberto = document.querySelector('#helpDialog').open
+  document.querySelector('#helpDialog button').click()
+  await espera(200)
+  resultado.ajuda = {
+    abriuPeloBotao: dialogAberto,
+    fechouPeloOk: !document.querySelector('#helpDialog').open,
+  }
+
+  // 6. §8.0: o handler de teclado do gravador de audio continua vivo
+  resultado.teclado = { onkeydownVivo: typeof window.onkeydown === 'function' }
+
+  return resultado
+})()

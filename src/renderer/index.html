@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="dark">
   <head>
     <meta charset="UTF-8" />
     <title>Veditbox</title>
@@ -7,28 +7,31 @@
       http-equiv="Content-Security-Policy"
       content="script-src 'self' 'unsafe-inline';"
     />
+    <link rel="stylesheet" href="lib/vendor/franken-ui/core.min.css" />
+    <link rel="stylesheet" href="styles/theme.css" />
     <link rel="stylesheet" href="styles/index.css" />
+    <link rel="stylesheet" href="styles/grid.css" />
     <link rel="stylesheet" href="styles/ai-search.css" />
   </head>
 
   <body>
     <div id="appLayout">
       <nav id="menu">
-        <h2><i data-lucide="box"></i></h2>
+        <h2 class="uk-btn uk-btn-primary"><i data-lucide="box"></i></h2>
         <ul>
-          <li class="active" data-tab="download"><i data-lucide="hard-drive-download"></i></li>
-          <li data-tab="image"><i data-lucide="image"></i></li>
-          <li data-tab="gif"><span class="tab-label">GIF</span></li>
-          <li data-tab="video"><i data-lucide="video"></i></li>
-          <li data-tab="audio"><i data-lucide="music-2"></i></li>
+          <li class="uk-btn uk-btn-ghost active" data-tab="download"><i data-lucide="hard-drive-download"></i></li>
+          <li class="uk-btn uk-btn-ghost" data-tab="image"><i data-lucide="image"></i></li>
+          <li class="uk-btn uk-btn-ghost" data-tab="gif"><span class="tab-label">GIF</span></li>
+          <li class="uk-btn uk-btn-ghost" data-tab="video"><i data-lucide="video"></i></li>
+          <li class="uk-btn uk-btn-ghost" data-tab="audio"><i data-lucide="music-2"></i></li>
         </ul>
-        <button class="button" id="helpBtn"><i data-lucide="help-circle"></i></button>
+        <button class="button uk-btn uk-btn-ghost" id="helpBtn"><i data-lucide="help-circle"></i></button>
       </nav>
       <div id="topBar">
         <div id="statusText"></div>
         <form id="settingsForm">
           <label>
-            <input type="checkbox" name="alwaysOnTop" /> Always on top
+            <input type="checkbox" class="uk-checkbox" name="alwaysOnTop" /> Always on top
           </label>
         </form>
       </div>
@@ -39,8 +42,8 @@
     
     
 
-    <dialog>
-      <h2>How to use</h2>
+    <dialog id="helpDialog" class="uk-card uk-card-body">
+      <h2 class="uk-h3">How to use</h2>
       <p>
         You can <span>paste</span> any <b>Image File</b>, <b>Giphy</b> or <b>Video URL</b> like Pexels, Instagram, Twitter, Youtube or any .mp4 file.
       </p>
@@ -55,9 +58,10 @@
         <b>Then</b> when image, audio or video appears, you can <span>drag and drop</span> it in any program that accepts dropping. <b>OR</b> after dragging, you'll find the file in the <span>veditbox</span> folder in your operational system user's folder      
       </p>
 
-      <button>OK</button>
+      <button class="uk-btn uk-btn-primary">OK</button>
     </dialog>
 
+    <script src="lib/vendor/franken-ui/core.iife.js"></script>
     <script src="lib/vendor/audiobuffer-to-wav.js"></script>
     <script src="index.js"></script>
   </body>

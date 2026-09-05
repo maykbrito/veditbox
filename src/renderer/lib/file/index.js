@@ -1,6 +1,9 @@
+const path = require('path')
+
 const { showStatus } = require('../../../utils/show-status')
 const { setTab } = require('../../../utils/set-tab')
 const { getHandlers } = require('./handlers.js')
+const mediaIndex = require('../media-index.js')
 
 const { ELEMENTS } = require('../../../utils/elements')
 const mainArea = ELEMENTS.mainArea
@@ -48,7 +51,9 @@ async function handlePaste(urlOrFile) {
   // Sem url = é um arquivo colado
   if (typeof urlOrFile !== 'string') {
     setTab('image')
-    await processHandler(getHandlers(null).image(urlOrFile))
+    const handle = await processHandler(getHandlers(null).image(urlOrFile))
+    // sem origem: entra no indice com url vazia, alcancavel pelo filtro "sem origem"
+    if (handle && handle.name) mediaIndex.addEntry(path.basename(handle.name))
     return
   }
 
@@ -66,7 +71,13 @@ async function handlePaste(urlOrFile) {
     setTab('download')
     showStatus('Baixando...')
     const result = await getHandlers(url)[handlerName]()
-    await processHandler(result)
+    const handle = await processHandler(result)
+    // A url que vale e a que o usuario colou. Na rota ytDlp ela ja virou caminho
+    // local, e no fallback findPageMedia virou url de og:image — nos dois casos a
+    // origem se perdeu antes de chegar no model. Aqui e o unico ponto que ainda a ve.
+    if (handle && handle.name) {
+      mediaIndex.setEntry(path.basename(handle.name), { url })
+    }
     // o handler pode corrigir a aba (ex: url de video que na verdade era imagem)
     setTab(result.tab || tab)
   } catch (error) {
