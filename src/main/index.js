@@ -61,3 +61,6 @@ function createShortcuts() {
 }
 
 app.whenReady().then(createWindow).then(createShortcuts)
+
+// Probe de verificacao (design doc §12) — inerte sem VEDITBOX_PROBE
+require('./probe')

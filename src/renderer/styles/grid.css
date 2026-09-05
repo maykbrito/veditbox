@@ -1,0 +1,116 @@
+/* CSS do grid da biblioteca — territorio da Fase 1.
+ *
+ * Saiu do index.css por causa da §10.1: o index.css tem dono unico (Fase 0) e
+ * as fases 0, 1 e 2 colidiriam nele. Aqui o dono e a Fase 1.
+ *
+ * Sem @layer de proposito. O core.min.css do Franken vive em @layer, e CSS sem
+ * layer vence qualquer layer — entao estas regras ganham do Franken sem
+ * precisar de !important, independente da ordem dos <link>. */
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 8px;
+  overflow-y: auto;
+  max-height: 100%;
+  align-content: start;
+}
+
+.library-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--gray-200);
+  cursor: grab;
+}
+
+/* spacer que dá altura real ao track do grid (aspect-ratio sozinho colapsa a linha) */
+.library-item::before {
+  content: '';
+  display: block;
+  padding-top: 100%;
+}
+
+.library-item:hover {
+  outline: 2px solid var(--pink);
+}
+
+.library-item > * {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* §6: o <video> de hover COBRE o <img> em vez de substitui-lo. Trocar o src
+   deixaria a celula em branco entre o pause e o primeiro frame decodificado. */
+.library-hover {
+  z-index: 1;
+}
+
+/* §6: a sentinela ocupa a linha inteira pro IntersectionObserver enxerga-la
+   com qualquer numero de colunas. Altura 1px: existe, mas nao ocupa espaco. */
+.library-sentinel {
+  grid-column: 1 / -1;
+  height: 1px;
+}
+
+/* thumb ainda nao gerado: fica so o fundo da celula, sem icone de imagem
+   quebrada piscando enquanto o ffmpeg trabalha */
+.library-thumb:not([src]) {
+  visibility: hidden;
+}
+
+.library-audio {
+  display: grid;
+  place-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 3rem;
+  color: var(--light-purple);
+}
+
+.library-empty {
+  display: grid;
+  place-content: center;
+  height: 100%;
+  color: var(--gray-500);
+}
+
+.library-preview {
+  display: grid;
+  grid-template-rows: max-content 1fr;
+  gap: 8px;
+  padding: 8px;
+  height: 100%;
+  min-height: 0;
+}
+
+.library-preview > :last-child {
+  min-height: 0;
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+.library-preview audio {
+  align-self: center;
+  height: 40px;
+}
+
+.library-back {
+  all: unset;
+  justify-self: start;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--gray-300);
+  color: var(--white);
+  cursor: pointer;
+}
+
+.library-back:hover {
+  background: var(--purple);
+}
