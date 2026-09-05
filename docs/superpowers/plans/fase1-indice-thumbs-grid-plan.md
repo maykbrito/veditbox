@@ -10,6 +10,23 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-05-veditbox-gerenciador-midias-design.md` (§3, §4, §5, §6). Leia o design doc antes de executar: ele registra o que foi descartado e por quê.
 
+## EMENDAS AO CONTRATO — o que mudou neste plano
+
+O contrato ganhou §3.1, §4.1, §8.0, §9.1, §10 (API canônica) e §10.1 depois que
+este plano foi escrito. **O contrato vence.** Deltas aplicados:
+
+| Emenda | Efeito neste plano |
+|---|---|
+| §3.1 — `largura`/`altura` fora do schema | **Task 6 CANCELADA.** Schema vira 4 campos: `url`, `titulo`, `tags`, `notes`. `MediaItem` perde `largura`/`altura`. |
+| §4.1 — poda vira tombstone | Task 2 arquiva em `arquivadas` em vez de deletar. Arquivo que volta com o mesmo nome recupera os metadados. |
+| §4.1 — debounce ~500ms na escrita | Task 2 debounça `gravar()`. `reconcile()` grava síncrono (boot, uma vez). Exporta `flush()` — **adição** à API canônica, nenhum rename. |
+| §10.1 — append-only | Task 3 não edita mais o topo de `src/renderer/index.js`. A lógica vai para `src/renderer/lib/boot.js` e o boot ganha **uma linha** de `require` no fim. |
+| §8.0 — `window.onkeydown` é atribuição | Tasks 1–4 não registram teclado. Regra anotada para a Task 5. |
+| §10.1 — CSS do grid vai para `styles/grid.css` | Task 5 (ainda não liberada). |
+| §10.1 — probe `grid-snapshot` da Fase 0 | Task 5 **atualiza os valores esperados**, não deleta o probe. |
+
+**Rodada atual: Tasks 1–4 apenas.** A Task 5 depende dos tokens da Fase 0.
+
 ## Global Constraints
 
 - **Nenhuma dependência nova.** Nem npm, nem CDN. Ver §2.2 e §9 do design.
@@ -43,11 +60,12 @@ O segundo comando deve imprimir um caminho existente. Se falhar, pare: toda a Ta
 | `src/renderer/lib/media-index.js` | **Criar.** Store do `index.json`: carregar, reconciliar, ler, gravar (atômico). Única porta para metadados. |
 | `src/renderer/lib/thumbs.js` | **Criar.** Cache de thumbnails em `/tmp/veditbox/`, fila com limite de 4 processos ffmpeg. |
 | `src/renderer/lib/library.js` | **Reescrever.** Grid de `<img>`, lote incremental, hover com `<video>`, preview. |
-| `src/renderer/index.js` | **Modificar.** Chamar a reconciliação no boot, antes de montar a UI. |
+| `src/renderer/lib/boot.js` | **Criar.** Reconcilia o índice na abertura. Existe como módulo próprio por causa da regra append-only da §10.1. |
+| `src/renderer/index.js` | **Modificar (append-only).** UMA linha de `require('./lib/boot.js')` no **fim** do arquivo. Nunca no bloco de imports. |
 | `src/renderer/lib/file/index.js` | **Modificar.** Registrar a url de origem depois de cada colagem bem-sucedida. |
-| `src/renderer/lib/file/ImageFile.js` | **Modificar.** 1 linha: gravar dimensões quando o `<img>` carrega. |
-| `src/renderer/lib/file/VideoFile.js` | **Modificar.** 1 linha: gravar dimensões quando o `<video>` carrega. |
-| `src/renderer/styles/index.css` | **Modificar.** Estilos do overlay de hover e do sentinel. |
+| `src/renderer/lib/file/ImageFile.js` | ~~Modificar~~ **Task 6 cancelada (§3.1).** Não tocar. |
+| `src/renderer/lib/file/VideoFile.js` | ~~Modificar~~ **Task 6 cancelada (§3.1).** Não tocar. |
+| `src/renderer/styles/grid.css` | **Criar (Task 5).** CSS do grid sai do `index.css` — §10.1 dá dono único ao `index.css` (Fase 0). |
 | `scripts/check-media-kinds.js` | **Criar.** Asserções de lógica pura. |
 | `scripts/check-media-index.js` | **Criar.** Asserções do store + reconciliação, em pasta temporária. |
 | `version.md` | **Modificar.** Registrar a mudança (convenção do AGENTS.md). |
@@ -71,17 +89,23 @@ dateFromName(nome)            // Date | null  (null = usar mtime)
 ```js
 // Chamado UMA vez no boot. Lê o JSON, reconcilia contra a pasta, grava se mudou.
 // Síncrono de propósito: a UI não deve montar antes do índice existir.
-reconcile()                   // -> { adotados: Number, podados: Number }
+reconcile()                   // -> { adotados: Number, arquivados: Number, restaurados: Number }
 
 // Leitura. Devolve OBJETOS DERIVADOS (não o cru do JSON).
 getAll()                      // -> MediaItem[]  ordenado: mais novo primeiro
 get(nome)                     // -> MediaItem | undefined
 
-// Escrita. Merge parcial no campo cru; grava atomicamente.
+// Escrita. Merge parcial no campo cru; grava com debounce de ~500ms (§4.1).
 // Ignora chaves fora do schema. Nunca cria arquivo em ~/veditbox.
-setEntry(nome, patch)         // -> MediaItem     patch: { url?, titulo?, tags?, notes?, largura?, altura? }
+setEntry(nome, patch)         // -> MediaItem     patch: { url?, titulo?, tags?, notes? }
 removeEntry(nome)             // -> void          (Fase 2 chama isso ao deletar)
 addEntry(nome)                // -> MediaItem     (adota um arquivo recém-criado sem reconciliar tudo)
+
+flush()                       // -> void  força a gravação pendente agora.
+                              //    ADICAO a §10, nenhum rename. Existe porque o
+                              //    debounce perderia a ultima edicao se o app
+                              //    fechasse antes dos 500ms. O modulo ja liga
+                              //    isso em beforeunload sozinho.
 
 INDEX_PATH                    // string, ~/veditbox/.veditbox/index.json
 ```
@@ -99,10 +123,25 @@ INDEX_PATH                    // string, ~/veditbox/.veditbox/index.json
   titulo:   '',
   tags:     [],
   notes:    '',
-  largura:  720,                         // 0 se desconhecido
-  altura:   1280,                        // 0 se desconhecido
 }
 ```
+
+**Formato do `index.json`** — mapa plano de nome → entrada, mais **uma chave
+reservada** `arquivadas` com os tombstones (§4.1):
+
+```json
+{
+  "20260905T144341144Z.mp4": { "url": "https://…", "titulo": "", "tags": [], "notes": "" },
+  "arquivadas": {
+    "20250101T000000000Z.png": { "url": "", "titulo": "antigo", "tags": ["x"], "notes": "" }
+  }
+}
+```
+
+`arquivadas` não pode colidir com um nome de arquivo real: a chave é o nome
+completo com extensão, e `categoryOf('arquivadas')` é `undefined` — um arquivo
+chamado `arquivadas` nunca entra no índice. Tombstone **não** aparece em
+`getAll()` nem em `get()`.
 
 ### `src/renderer/lib/thumbs.js`
 
@@ -599,7 +638,8 @@ git commit -m "feat: store do index.json com escrita atomica e reconciliacao na 
 ### Task 3: Ligar o índice ao boot e gravar a url de origem
 
 **Files:**
-- Modify: `src/renderer/index.js:5` (logo depois do `create-download-directory`)
+- Create: `src/renderer/lib/boot.js`
+- Modify: `src/renderer/index.js` — **UMA linha no FIM do arquivo** (§10.1 append-only)
 - Modify: `src/renderer/lib/file/index.js:68-71` (dentro do `try` de `handlePaste`)
 
 **Interfaces:**
@@ -608,16 +648,45 @@ git commit -m "feat: store do index.json com escrita atomica e reconciliacao na 
 
 **Por que aqui e não em `ImageFile`/`VideoFile`:** a url que interessa é **a que o usuário colou** (`https://www.facebook.com/reel/…`), não a url de mídia intermediária. Na rota `ytDlp`, `handlers.mp4(filePath)` substitui a url pelo caminho local, e no fallback `findPageMedia` ela vira a url do `og:image`. Em ambos os casos a url de origem já se perdeu quando chega no model. `handlePaste` é o único ponto por onde as três rotas passam com a url original em mãos — um lugar só, em vez de um remendo por rota.
 
-- [ ] **Step 1: Reconciliar no boot**
+**Por que um módulo `boot.js` para uma chamada:** §10.1 torna `src/renderer/index.js` append-only — quatro fases o compartilham e o bloco de imports do topo é onde os merges explodem. Uma linha no fim é o que a regra permite.
 
-Em `src/renderer/index.js`, logo após a linha `require('../utils/create-download-directory').create()`:
+**Ordem ainda funciona:** `library.js` (linha 23 do boot) só *define* funções e liga `onclick`; nada renderiza no require. Então reconciliar depois dele, no fim do arquivo, continua sendo antes de qualquer grid montar. `create-download-directory` (linha 5) já rodou, então a pasta existe.
+
+- [ ] **Step 1: Criar `src/renderer/lib/boot.js`**
 
 ```js
-// indice de metadados: reconcilia com a pasta antes de qualquer UI montar (§4)
-require('./lib/media-index').reconcile()
+const mediaIndex = require('./media-index')
+
+// §4: reconciliacao roda so na abertura. Modulo proprio por causa da regra
+// append-only da §10.1 — src/renderer/index.js ganha uma linha, nunca um import.
+const resultado = mediaIndex.reconcile()
+
+console.log(
+  `[veditbox] indice: ${resultado.adotados} adotado(s), ` +
+    `${resultado.arquivados} arquivado(s), ${resultado.restaurados} restaurado(s)`,
+)
+
+module.exports = { resultado }
 ```
 
-- [ ] **Step 2: Registrar a url de origem depois da colagem**
+- [ ] **Step 2: Uma linha no fim de `src/renderer/index.js`**
+
+Acrescente ao **final** do arquivo, depois do `showStatus(...)`:
+
+```js
+// indice de metadados (fase 1) — append-only por §10.1
+require('./lib/boot.js')
+```
+
+Confirme que o bloco de `require` do topo ficou **byte a byte idêntico**:
+
+```bash
+git diff -U0 src/renderer/index.js
+```
+
+Esperado: um único hunk, no fim do arquivo, só com linhas `+`.
+
+- [ ] **Step 3: Registrar a url de origem depois da colagem**
 
 Em `src/renderer/lib/file/index.js`, adicione o require no topo:
 
@@ -1355,7 +1424,18 @@ git commit -m "feat: grid so de <img> com lote incremental e hover de video sob 
 
 ---
 
-### Task 6: Gravar dimensões onde elas já estão em mãos
+### Task 6: ~~Gravar dimensões onde elas já estão em mãos~~ — **CANCELADA (§3.1)**
+
+Não implemente. `largura`/`altura` saíram do schema: não há consumidor em nenhuma
+fase e `@ffmpeg-installer` não embarca `ffprobe`, então o índice ficaria
+permanentemente incompleto para um dado que ninguém lê. `ImageFile.js` e
+`VideoFile.js` **não são tocados** por esta fase. O texto original segue abaixo
+apenas como registro do que foi descartado — não execute nenhum passo dele.
+
+<details>
+<summary>Texto original (não executar)</summary>
+
+#### Gravar dimensões onde elas já estão em mãos
 
 **Files:**
 - Modify: `src/renderer/lib/file/ImageFile.js:42-50` (dentro de `el.onload`)
@@ -1446,6 +1526,8 @@ Cole também uma imagem nova e confira que ela nasce com dimensões já preenchi
 git add src/renderer/lib/file/ImageFile.js src/renderer/lib/file/VideoFile.js src/renderer/lib/library.js
 git commit -m "feat: grava dimensoes no indice onde o elemento ja as expoe"
 ```
+
+</details>
 
 ---
 
