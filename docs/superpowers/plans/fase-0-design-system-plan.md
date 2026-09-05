@@ -21,7 +21,41 @@ de triplete HSL que o Franken usa.
 `package.json`.
 
 **Spec:** `docs/superpowers/specs/2026-09-05-veditbox-gerenciador-midias-design.md`
-(§9 Design system, §10 Fases, §12 Testes)
+(§9 Design system, §9.1, §10 Fases, §10.1 Protocolo de merge, §12 Testes)
+
+---
+
+## Emendas ao plano (contrato venceu)
+
+O contrato ganhou §8.0, §9.1 e §10.1 depois que este plano foi escrito. Três
+coisas mudaram, o contrato venceu nas três:
+
+1. **§10.1 — `src/main/index.js` é append-only.** O plano original enfiava um
+   bloco de probe dentro de `createWindow()` e o revertia na Task 7. Proibido
+   agora: quatro fases compartilham o arquivo e é onde os merges explodem.
+   **Novo desenho:** o probe vira `src/main/probe.js`, um módulo que se pendura
+   em `app.on('browser-window-created')` — não precisa da variável `win`, que não
+   é exportada — e `src/main/index.js` recebe **uma única linha** de `require` no
+   fim. Fica permanente, inerte sem `VEDITBOX_PROBE`, e as Fases 1–3 reusam.
+   Some a Task 7 Step 4 (reversão): não há o que reverter.
+
+2. **§9.1 — nova responsabilidade da Fase 0:** `src/utils/elements.js:12` usa
+   `querySelector('dialog')`, que sequestra o botão de ajuda assim que a Fase 3
+   criar o `<dialog>` do Cmd+K. Vira **Task 4b**: `id="helpDialog"` no HTML e
+   seletor por id. §10.1 dá a Fase 0 como dona única de `elements.js`.
+
+3. **§9.1 — o dialog de ajuda continua `<dialog>` nativo.** Era objeção minha,
+   respondida: `uk-modal` não é usado em lugar nenhum do app, e confirmação
+   destrutiva (Fase 2) usa `dialog.showMessageBox` do main. A Task 5 já estava
+   certa; agora é norma, não escolha local.
+
+Também herdado de §10.1: `src/renderer/styles/index.css` tem **dono único: Fase
+0**. Mas as regras do grid continuam intocadas — a Fase 1 é quem as move para
+`styles/grid.css`.
+
+E de §8.0: nenhuma fase pode fazer `window.onkeydown = ...`. A Fase 0 não
+registra teclado, mas o probe passa a conferir que o handler do gravador de áudio
+continua vivo.
 
 ---
 
