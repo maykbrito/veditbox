@@ -10,10 +10,13 @@ const mainArea = ELEMENTS.mainArea
 const ROUTES = [
   [/giphy\.com/i, 'giphy', 'gif'],
   [/\.gif(\?|$)/i, 'image', 'gif'],
-  [/(twitter|x\.com|instagram|youtube|youtu\.be|tiktok)/i, 'customSocialDownloader', 'video'],
-  [/pexels/i, 'pexels', 'video'],
-  [/\.(mp4|webm|mov)(\?|$)/i, 'mp4', 'video'],
   [/\.(png|jpe?g|webp|avif|svg)(\?|$)/i, 'image', 'image'],
+  [/\.(mp4|webm|mov)(\?|$)/i, 'mp4', 'video'],
+  // pexels serve mp4 sem extensao na url, e o yt-dlp nao tem extractor pra ele
+  [/pexels\.com/i, 'pexels', 'video'],
+  // Resto: entrega pro yt-dlp, que cobre ~1800 sites. Listar dominio a dominio
+  // so consertava um site por vez (era o caso do facebook).
+  [/^https?:\/\//i, 'ytDlp', 'video'],
 ]
 
 // Paste content from clipboard

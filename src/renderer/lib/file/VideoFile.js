@@ -18,11 +18,18 @@ class VideoFile {
   }
 
   async generate(blobFile = null) {
+    // yt-dlp e o gravador de tela ja escreveram o arquivo: reaproveita o caminho,
+    // senao gravariamos uma segunda copia identica com outro timestamp
+    const jaEmDisco = !blobFile && this.url && fs.existsSync(this.url)
+
     this.file = await this.createFile(blobFile)
-    this.name = CONSTANTS.videoFilePath()
+    this.name = jaEmDisco ? this.url : CONSTANTS.videoFilePath()
     this.arrayBuffer = await this.file.arrayBuffer()
-    // grava ja aqui, senao o arquivo so existiria ao arrastar e nao apareceria na biblioteca
-    fs.writeFileSync(this.name, Buffer.from(this.arrayBuffer))
+
+    // grava so quando a origem e remota, senao o arquivo
+    // so existiria ao arrastar e nao apareceria na biblioteca
+    if (!jaEmDisco) fs.writeFileSync(this.name, Buffer.from(this.arrayBuffer))
+
     // src por ultimo: onloadeddata le arrayBuffer, entao ele precisa existir antes
     this.el.src = URL.createObjectURL(this.file)
     return this

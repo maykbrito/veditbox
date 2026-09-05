@@ -19,6 +19,8 @@
 
 ### Fix
 
+* Facebook (e qualquer outro site suportado pelo yt-dlp) não era reconhecido
+  ao colar; a tabela de rotas listava domínios um a um
 * Imagem/áudio colado ou gravado só ia pro disco ao arrastar, então nunca
   aparecia na biblioteca; agora salva assim que é carregado
 * Colar imagem do clipboard travava em "reading it..." — `generate()` não era

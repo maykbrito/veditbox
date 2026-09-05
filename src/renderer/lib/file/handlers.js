@@ -21,7 +21,7 @@ module.exports.getHandlers = (url) => ({
     const image = new ImageFile(urlOrFile)
     return { message: 'Image pasted — reading it...', handle: image }
   },
-  async customSocialDownloader() {
+  async ytDlp() {
     const filePath = await VideoDownloader(url)
     return this.mp4(filePath)
   },
