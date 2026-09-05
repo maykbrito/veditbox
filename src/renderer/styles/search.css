@@ -1,0 +1,225 @@
+/* Fase 3 — busca (Cmd+K), pills de tag e sheet de metadados.
+ * Arquivo proprio: o index.css tem dono (Fase 0, §10.1).
+ *
+ * ARMADILHA DO LAYER (§10.6), na versao que mordeu esta fase: o index.css tem
+ * regras de ELEMENTO sem layer — `dialog { width: 80% }`, `dialog p`,
+ * `dialog button`, `img, video { width:100%; height:100% }`. Elas foram escritas
+ * pro dialog de ajuda, mas casam com QUALQUER <dialog> do documento, inclusive o
+ * meu. Como este arquivo tambem e sem layer, quem decide e a especificidade: por
+ * isso tudo aqui e ancorado num id (#searchDialog / #metadataSheet), e as
+ * propriedades herdadas do `dialog` generico sao zeradas explicitamente abaixo.
+ * Os valores estao conferidos por computed style no probe `search-ui`. */
+
+/* ---------------- palette Cmd+K ---------------- */
+
+#searchDialog {
+  /* os quatro primeiros existem so pra desfazer `dialog { width:80%; margin:auto;
+     border:none }` do index.css — sem eles a palette nasce com 80% da janela */
+  width: 460px;
+  max-width: 90vw;
+  margin: auto;
+  padding: 0;
+
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--uk-global-radius);
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  /* a escala global e 10px pra topBar caber em 36px; a palette e conteudo de
+     leitura, entao sobe DENTRO do componente (nunca no token global) */
+  font: 12px monospace;
+  overflow: hidden;
+  box-shadow: 0 24px 48px -12px rgb(0 0 0 / 0.6);
+}
+
+#searchDialog::backdrop {
+  background-color: rgb(12 12 12 / 0.8);
+}
+
+#searchInput {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid hsl(var(--border));
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  outline: 0;
+}
+
+#searchInput::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+/* -webkit-search-* nasce com decoracao propria no Chromium */
+#searchInput::-webkit-search-cancel-button {
+  display: none;
+}
+
+#searchResults {
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+}
+
+#searchResults li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: var(--uk-global-radius-s);
+  cursor: pointer;
+  list-style: none;
+}
+
+#searchResults li[aria-selected='true'] {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+#searchResults .search-rotulo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
+  /* o titulo e o motivo da busca existir: as pills nao podem espreme-lo ate
+     "reels de ca…" so pra caber uma terceira tag na linha */
+  min-width: 45%;
+}
+
+#searchResults .search-meta {
+  color: hsl(var(--muted-foreground));
+  flex-shrink: 0;
+}
+
+#searchResults li[aria-selected='true'] .search-meta {
+  color: inherit;
+  opacity: 0.75;
+}
+
+/* linha de comando (filtro), nao arquivo */
+#searchResults .search-comando .search-rotulo {
+  color: hsl(var(--primary));
+}
+
+#searchResults .search-empty {
+  cursor: default;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ---------------- pills de tag ---------------- */
+
+.tag-pill {
+  display: inline-block;
+  flex-shrink: 0;
+  padding: 1px 7px;
+  border: 0;
+  border-radius: 999px;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font: inherit;
+  line-height: 15px;
+  cursor: pointer;
+}
+
+.tag-pill:hover {
+  filter: brightness(1.15);
+}
+
+/* pills na celula do grid: cabem no rodape sem cobrir o thumb.
+   `.library-item > *` do grid.css (Fase 1, sem layer) forca position:absolute,
+   inset:0, width/height:100% e pointer-events:none em TODO filho da celula.
+   Ganho por especificidade (0,2,0 contra 0,1,0), mas preciso desfazer campo a
+   campo — width/height/inset nao se desfazem sozinhos. */
+.library-item .library-tags {
+  position: absolute;
+  inset: auto;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  width: auto;
+  height: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  max-height: 34px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.library-item .library-tags .tag-pill {
+  pointer-events: auto;
+  font-size: 9px;
+  line-height: 13px;
+  padding: 0 6px;
+}
+
+/* ---------------- sheet de metadados ---------------- */
+
+/* 288px e o padrao do Franken, largo demais numa janela de 600px com sidebar
+   de 78px. Token trocado DENTRO do componente, nunca no :root. */
+#metadataSheet {
+  --uk-offcanvas-bar-width: 260px;
+  font: 11px monospace;
+}
+
+#metadataSheet .uk-offcanvas-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-left: 1px solid hsl(var(--border));
+}
+
+#metadataSheet h3 {
+  margin: 0;
+  font-size: 12px;
+  color: hsl(var(--primary));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#metadataSheet label {
+  display: block;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ancorado no name, nao em [type=text]: o <uk-input-tag> monta um input
+   type=text em light DOM dentro deste mesmo #metadataSheet, e como este arquivo
+   nao tem layer ele venceria o estilo proprio do componente (§10.6). */
+#metadataSheet input[name='titulo'],
+#metadataSheet textarea {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 5px 7px;
+  border: 1px solid hsl(var(--input));
+  border-radius: var(--uk-global-radius-s);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font: 11px monospace;
+  outline: 0;
+  resize: vertical;
+}
+
+#metadataSheet input[name='titulo']:focus,
+#metadataSheet textarea:focus {
+  border-color: hsl(var(--ring));
+}
+
+#metadataSheet uk-input-tag {
+  display: block;
+  margin-top: 4px;
+}
+
+#metadataSheet .sheet-acoes {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+}

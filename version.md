@@ -25,6 +25,20 @@
 * Probes de UI em `tools/probes/` e `tools/check-theme-tokens.js`: verificam o
   app rodando, não compilando
 
+* Busca com `Cmd+K` num `<dialog>` nativo: substring em título, tags, notas e
+  URL, com ranking título > tag > nota > url. O escopo é a biblioteca inteira,
+  não a aba atual. Medido em 5000 itens sintéticos: 4,0ms por busca no pior
+  caso, então `includes()` basta e Fuse.js continua fora
+* Sheet lateral direito (Offcanvas do Franken) pra editar título, tags e notas.
+  As tags usam o `<uk-input-tag>`; salvar chama `flush()`, então a edição vai
+  pro disco na hora em vez de esperar o debounce
+* Pills de tag nas células do grid e nos resultados da busca; clicar numa pill
+  filtra a biblioteca por aquela tag
+* Filtro "sem origem", único caminho até os arquivos adotados na reconciliação
+  (eles ficam com URL vazia e, por contrato, não recebem tag automática)
+* `addTagToMany(names, tag)` em `metadata-sheet.js`: aplica uma tag a vários
+  arquivos de uma vez, para a barra de seleção múltipla
+
 ### Update
 
 * Grid: toda célula agora é `<img>` do thumbnail, inclusive vídeo. Antes o
@@ -50,6 +64,14 @@
 * O reset `* { margin: 0; padding: 0 }` zerava o padding de todo componente do
   Franken (o dialog media 0px). Era redundante — o `@layer base` do Franken traz
   o mesmo reset
+
+* Atalhos globais não disparam mais enquanto se digita. O gravador de áudio
+  capturava `r` e espaço em qualquer lugar da janela, então digitar "reels" na
+  busca começaria a gravar áudio — e o `<dialog>` não isola, o evento sobe até
+  a `window` (medido). Agora há uma guarda de foco (`isTypingTarget`)
+* O gravador de áudio usava `window.onkeydown = ...`. Qualquer outro arquivo que
+  atribuísse de novo apagaria a gravação por atalho em silêncio; virou
+  `addEventListener`
 
 ## 1.1.0
 

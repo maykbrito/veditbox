@@ -31,3 +31,6 @@ showStatus('Paste image, url or use shortcuts do record audio/video')
 
 // indice de metadados (fase 1) — append-only por §10.1
 require('./lib/boot.js')
+
+// busca (Cmd+K), pills de tag e sheet de metadados (fase 3) — append-only por §10.1
+require('./lib/search/index.js')

@@ -70,8 +70,36 @@
     fechouPeloOk: !document.querySelector('#helpDialog').open,
   }
 
-  // 6. §8.0: o handler de teclado do gravador de audio continua vivo
-  resultado.teclado = { onkeydownVivo: typeof window.onkeydown === 'function' }
+  // 6. §8.0: o handler de teclado do gravador de audio continua vivo.
+  // A Fase 3 trocou `window.onkeydown = ...` por addEventListener (a atribuicao
+  // era o alcapao do §8.0), entao onkeydown agora e null DE PROPOSITO. O que
+  // prova que o handler vive e a tecla funcionar — ver probe `focus-guard`.
+  const fs = require('fs')
+  const { CONSTANTS } = require('../utils/constants') // resolve a partir de src/renderer/
+  const pasta = CONSTANTS.destDownloadFolder
+  const listar = () => new Set(fs.readdirSync(pasta))
+  const antesDosArquivos = listar()
+  const statusAntes = document.querySelector('#statusText').textContent
+  window.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', bubbles: true }))
+  await espera(900)
+  resultado.teclado = {
+    onkeydownEhAtribuicao: typeof window.onkeydown === 'function',
+    teclaRGravou: document
+      .querySelector('#statusText')
+      .textContent.includes('Recording audio'),
+    statusAntes: statusAntes.slice(0, 30),
+  }
+  window.activeThing.dispose()
+  // a gravacao escreve o .wav no disco; o probe nao pode deixar lixo na
+  // biblioteca do usuario (§ probes que escrevem, tools/probes/README.md)
+  await espera(1200)
+  resultado.teclado.wavsRemovidos = [...listar()]
+    .filter((f) => !antesDosArquivos.has(f))
+    .map((f) => {
+      fs.unlinkSync(pasta + '/' + f)
+      return f
+    })
+
 
   return resultado
 })()

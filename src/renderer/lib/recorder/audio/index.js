@@ -12,7 +12,16 @@ const { showStatus } = require('../../../../utils/show-status')
 const { getMediaStream } = require('./media-stream.js')
 const { setTab } = require('../../../../utils/set-tab')
 
-window.onkeydown = (e) => {
+const { isTypingTarget } = require('../../../../utils/is-typing-target')
+
+// §8.0: addEventListener, nunca `window.onkeydown = ...`. A atribuicao antiga
+// era um alcapao — qualquer outro arquivo que atribuisse de novo apagava esta
+// gravacao por atalho em silencio, sem erro.
+window.addEventListener('keydown', (e) => {
+  // §8.1: sem esta guarda, digitar "reels" na busca comeca a gravar audio.
+  // Verificado: <dialog open> NAO isola, o keydown sobe ate o window.
+  if (isTypingTarget(e.target)) return
+
   if (!e.altKey && !e.ctrlKey && !e.metaKey) {
     if (e.key === 'r' || e.key === 'R') {
       e.preventDefault()
@@ -26,7 +35,7 @@ window.onkeydown = (e) => {
       }
     }
   }
-}
+})
 
 async function toggleRecording({ noiseSuppression }) {
   if (window.activeThing.isRecording) {
