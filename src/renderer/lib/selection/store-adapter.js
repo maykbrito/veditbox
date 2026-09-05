@@ -36,6 +36,10 @@ const selectableNames = () => {
 // So pra pintar/estender intervalo: e a ordem do que esta na tela.
 const renderedNames = () => [...lib.getRenderedItems().keys()]
 
+// { el, item } de cada celula montada. Serve pra repintar, nunca pra decidir o
+// que esta selecionado (§10.5).
+const cellHooksTargets = () => [...lib.getRenderedItems().values()]
+
 const itemEl = (name) => {
   const registro = lib.getRenderedItems().get(name)
   return registro ? registro.el : null
@@ -70,6 +74,7 @@ module.exports = {
   currentTab,
   selectableNames,
   renderedNames,
+  cellHooksTargets,
   itemEl,
   filePath,
   indexGet,
