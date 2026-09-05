@@ -277,6 +277,20 @@ mesmo array já filtrado.
 **Filtros por aba** continuam por tipo derivado da extensão, independentes da
 busca. Mais o filtro "sem origem".
 
+### 8.0 PERIGO — `window.onkeydown` é atribuição, não listener
+
+Achado da Fase 2, vale para **todas** as fases:
+`src/renderer/lib/recorder/audio/index.js` faz `window.onkeydown = ...`. Uma
+segunda atribuição em qualquer arquivo **apaga a gravação por atalho em
+silêncio**, sem erro.
+
+Toda fase que registrar teclado usa `addEventListener`, nunca atribuição, e
+inclui regressão apertando `r` e espaço.
+
+Nota da Fase 2: a guarda de foco de §8.1 não é necessária para atalhos com
+`metaKey` (o handler de áudio já sai cedo em `!metaKey`). Ela continua
+**obrigatória para a Fase 3**, cujo campo de busca recebe letras soltas.
+
 ### 8.1 Correção obrigatória: atalhos cientes de foco
 
 O gravador de áudio registra `window.onkeydown` e captura `r` e espaço
@@ -308,10 +322,23 @@ Cobre quase todo componente novo planejado:
 
 ### 9.1 EMENDA — decisões que a Fase 0 pediu
 
-**Confirmação usa `<dialog>` nativo, não `uk-modal`.** `showModal()` já dá foco,
-backdrop e Esc de graça, e trocar exigiria mexer em `modal.js` e `elements.js`.
-Franken entra só para estilizar o conteúdo. Vale a regra de sempre: recurso
-nativo antes de dependência. **A Fase 2 herda esse padrão.**
+**Confirmação destrutiva usa `dialog.showMessageBox` do processo main.**
+
+Esta emenda *substitui* minha decisão anterior (que era `<dialog>` HTML). A Fase
+2 argumentou melhor: `showMessageBox` evita o alçapão do `elements.js` por
+completo e, principalmente, **desacopla a Fase 2 do término da Fase 0** — que
+era exatamente o paralelismo prometido na §10 e que minha emenda tinha quebrado
+sem eu notar. É também o comportamento macOS correto para ação destrutiva: é o
+que o Finder faz.
+
+Regra resultante, por superfície:
+
+| Superfície | Mecanismo |
+|---|---|
+| Confirmação destrutiva | `dialog.showMessageBox` (main, nativo do SO) |
+| Palette Cmd+K, ajuda, sheet | `<dialog>` HTML, estilizado com Franken |
+
+`uk-modal` não é usado em lugar nenhum.
 
 **`elements.js:12` usa `querySelector('dialog')`**, que sequestra o botão de
 ajuda assim que qualquer outro `<dialog>` aparecer antes dele no DOM. A Fase 3
@@ -355,6 +382,22 @@ mão e refeitos em seguida.
 **Fase 2 — Seleção, delete, undo.** Resolve a dor que originou a conversa.
 
 **Fase 3 — Busca, tags, sheet, pills.** Inclui a correção de §8.1.
+
+### API canônica do store (resolve suposições da Fase 2)
+
+A Fase 1 é dona do store; os nomes dela valem. A Fase 2 supôs
+`list/get/remove/put/save` — o correto é:
+
+`reconcile()`, `getAll()`, `get(nome)`, `setEntry(nome, patch)`,
+`addEntry(nome)`, `removeEntry(nome)`, `INDEX_PATH`.
+
+Grid: `showLibrary(tab)`, `renderGrid(items, tab)`, `getRenderedItems()`,
+`cellHooks`, `refresh()`. Cada célula tem `data-name` — confirma a suposição S2.
+
+Thumbs: `thumbPath(nome)`, `getThumb(item)`, `deleteThumb(nome)`.
+
+**Resolve S4:** a Fase 2 não deve montar o caminho do thumb à mão. Chama
+`deleteThumb(nome)`. Se o padrão de nome mudar, quem muda é a dona.
 
 ### Paralelismo real
 
