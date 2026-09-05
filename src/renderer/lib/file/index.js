@@ -19,11 +19,29 @@ const ROUTES = [
   [/^https?:\/\//i, 'ytDlp', 'video'],
 ]
 
+// yt-dlp joga o stderr inteiro na mensagem, começando com \n, o que deixava a
+// barra de status parecendo vazia. So a linha ERROR: interessa.
+const resumoErro = (error) => {
+  const texto = String(error?.message ?? error ?? '').trim()
+  const linha = texto.split('\n').reverse().find((l) => l.includes('ERROR:')) || texto
+  return linha.replace(/^ERROR:\s*/, '').trim() || 'erro desconhecido'
+}
+
+// Uma colagem por vez: sem isso, colar de novo antes da anterior terminar faz
+// os dois fluxos disputarem o mainArea e a aba ativa
+let emAndamento = null
+
 // Paste content from clipboard
 document.onpaste = async (e) => {
   e.preventDefault()
   const text = (e.clipboardData || window.clipboardData).getData('text')
-  handlePaste(text || e.clipboardData.files[0])
+  const entrada = text || e.clipboardData.files[0]
+
+  emAndamento = Promise.resolve(emAndamento)
+    .catch(() => {})
+    .then(() => handlePaste(entrada))
+
+  return emAndamento
 }
 
 async function handlePaste(urlOrFile) {
@@ -47,11 +65,13 @@ async function handlePaste(urlOrFile) {
   try {
     setTab('download')
     showStatus('Baixando...')
-    await processHandler(await getHandlers(url)[handlerName]())
-    setTab(tab)
+    const result = await getHandlers(url)[handlerName]()
+    await processHandler(result)
+    // o handler pode corrigir a aba (ex: url de video que na verdade era imagem)
+    setTab(result.tab || tab)
   } catch (error) {
     setTab('download')
-    showStatus(error.message || String(error), 'red')
+    showStatus(`Falhou: ${resumoErro(error)}`, 'red')
   }
 }
 

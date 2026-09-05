@@ -26,9 +26,15 @@ const download = (url) => {
     video.pipe(fs.createWriteStream(videoFilePath))
   
     video.on('close', () => {
-      if(err) {
-        return reject(err)
+      // yt-dlp sai com sucesso mesmo quando nao acha video (ex: pin de imagem),
+      // deixando um arquivo de 0 bytes que sujava a biblioteca
+      const vazio = !fs.existsSync(videoFilePath) || fs.statSync(videoFilePath).size === 0
+
+      if (err || vazio) {
+        if (fs.existsSync(videoFilePath)) fs.unlinkSync(videoFilePath)
+        return reject(err?.message ? err : new Error('yt-dlp não encontrou vídeo nessa página'))
       }
+
       showStatus('done downloading video file', 'green')
       resolve(videoFilePath)
     })

@@ -19,6 +19,11 @@
 
 ### Fix
 
+* Pins do Pinterest e outras páginas de imagem falhavam silenciosamente no
+  yt-dlp; agora cai no OpenGraph (og:image/og:video) da página
+* Download sem vídeo deixava um arquivo de 0 bytes na biblioteca
+* Erro do yt-dlp aparecia como status em branco
+* Colar de novo antes da colagem anterior terminar embaralhava tela e aba
 * Facebook (e qualquer outro site suportado pelo yt-dlp) não era reconhecido
   ao colar; a tabela de rotas listava domínios um a um
 * Imagem/áudio colado ou gravado só ia pro disco ao arrastar, então nunca
