@@ -431,6 +431,52 @@ esperados**, não deleta o probe.
 `library/store.js`; o thumb se apaga com `deleteThumb()`, não montando caminho).
 Corrigidas em §10 acima — reler antes de implementar.
 
+### 10.2 API real publicada pela Fase 1 (substitui as previsões)
+
+Medida contra o app rodando, não prevista:
+
+- `reconcile()` devolve `{adotados, arquivados, restaurados}` — três campos, não
+  dois. O tombstone de §4.1 exigiu. Nenhuma fase lia isso.
+- `flush()` **adicionado** ao store. Nenhum rename. **A Fase 2 deve chamar
+  `flush()` antes de operação destrutiva**, senão os 500ms de debounce a pegam.
+- `MediaItem` = `{name, filePath, category, date, domain, url, titulo, tags,
+  notes}`. Sem `largura`/`altura`, conforme §3.1.
+- `getThumb()` **nunca rejeita**: devolve o arquivo original como fallback, ou
+  `''` para áudio (que usa o ícone).
+- `index.json` é mapa plano `nome -> entrada` mais a chave reservada
+  `arquivadas`. Não colide porque `categoryOf('arquivadas')` é `undefined`.
+  Tombstone nunca sai em `getAll()`/`get()`.
+
+**Cache de thumbs: `os.tmpdir()`**, não o literal `/tmp/veditbox` que §5 dizia.
+No macOS `os.tmpdir()` resolve para o `TMPDIR` por usuário, enquanto `/tmp` é
+compartilhado e world-writable — some a ressalva de privacidade que §5
+registrava. O objetivo original (ficar fora da pasta sincronizada) continua
+satisfeito, e §10 já proíbe montar caminho de thumb à mão.
+
+**`removeEntry()` não cria tombstone.** Apagar é ato explícito do usuário;
+tombstone existe para o passeio acidental no Finder. O undo da Fase 2 guarda a
+entrada na própria pilha em memória, como §7 já previa.
+
+### 10.3 ffmpeg: `-ss` está PROIBIDO para thumbnail
+
+Medido nos 84 arquivos reais da biblioteca:
+
+| estratégia | sucesso | mediana |
+|---|---|---|
+| `-ss 1` (seek) | **27/84** | — |
+| filtro `thumbnail` | 80/84 | 0,024s |
+| **híbrido (implementado)** | **80/84** | **0,022s** |
+
+Buscar 1s dentro de uma **imagem parada** não devolve frame: o ffmpeg escreve
+arquivo **vazio**. 57 dos 84 arquivos são stills. Seguir a tabela de §5 sem
+medir teria criado o cache com ~57 JPEGs vazios.
+
+Híbrido: still só escala; vídeo usa o filtro `thumbnail`.
+
+Os 4 restantes são arquivos honestamente quebrados — dois `.webp` animados que o
+decoder do ffmpeg não lê (o Chromium lê, então o fallback ao original exibe
+certo) e dois `.mp4` de 0 byte, resíduo do bug antigo do yt-dlp.
+
 ### Paralelismo real
 
 Honestidade sobre limites:
