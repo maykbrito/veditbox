@@ -1,18 +1,5 @@
 :root {
-  /* omni colors */
-  --gray-100: #121214;
-  --gray-200: #191622;
-  --gray-300: #272234;
-  --white: #E1E1E6;
-  --gray-500: #41414D;
-  --purple: #5A4B81;
-  --light-purple: #988bc7;
-  --green: #67e480;
-  --orange: #E89E64;
-  --pink: #FF79C6;
-  --blue: #78D1E1;
-  --red: #E96379;
-  --yellow: #e7de79;
+  /* cores: src/renderer/styles/theme.css */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
