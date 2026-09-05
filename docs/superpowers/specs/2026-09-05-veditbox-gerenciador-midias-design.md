@@ -548,6 +548,44 @@ etapa de reversão** — que é justamente onde se esquece de reverter.
 
 Fases 1, 2 e 3 devem usar `src/main/probe.js` em vez de instrumentação temporária.
 
+### 10.8 O bundle do Franken tem MENOS do que §9 prometeu
+
+Medido pela Fase 3 com o app rodando, não lido na documentação.
+
+**`uk-offcanvas` NÃO EXISTE** no bundle vendorizado. Nem `uk-drop`, nem
+`uk-icon`. Só `uk-command` e `uk-input-tag` estão registrados no
+`customElements`.
+
+O modo de falha é traiçoeiro: `<uk-offcanvas>` no HTML vira uma `<div>` inerte,
+**sem erro nenhum**. Nada no console.
+
+Solução que funciona: `window.UIkit.offcanvas(el, {flip:true, overlay:true})`.
+A tabela de §9 prometia `Offcanvas` como componente — estava errada.
+
+**`uk-input-tag` lê as tags iniciais de `value="a,b"`, não de `state`.** Com
+`state` ele nasce vazio **e** `addTag()` não faz nada, em silêncio. Ele só lê na
+inicialização, então o elemento é recriado a cada abertura do sheet.
+
+Lição: o aviso da rodada 2 confirmava `uk-command` e `uk-input-tag`. `Offcanvas`
+nunca foi confirmado — e era justamente o que faltava. Confirmar dois de três não
+é confirmar.
+
+### 10.9 A armadilha do layer também vem de regras de ELEMENTO
+
+Extensão de §10.6, achada pela Fase 3. Não é só o reset universal:
+
+- `index.css` tem `dialog { width: 80% }`, `dialog p`, `dialog button` **sem
+  layer**. Casam com **qualquer** `<dialog>` novo — o `#searchDialog` nasceria
+  com 80% da janela.
+- `grid.css` tem `.library-item > *` forçando `position:absolute; inset:0;
+  width/height:100%; pointer-events:none` em **todo** filho de célula.
+
+Você vence por especificidade, mas tem que desfazer **campo a campo**: `width` e
+`height` não se desfazem sozinhos.
+
+**Isso atinge diretamente o checkbox de seleção da Fase 2**, que é filho de
+célula. Medir os computed styles é obrigatório — a quebra é silenciosa.
+
 ### Paralelismo real
 
 Honestidade sobre limites:
