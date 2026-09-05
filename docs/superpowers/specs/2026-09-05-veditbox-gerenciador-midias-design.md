@@ -513,6 +513,41 @@ apagou tudo. Selecionar opera sobre a **lista** (`getAll()`), nunca sobre o DOM.
 `getRenderedItems()` serve para iterar o que está na tela; `getAll()` para o
 Cmd+A. Depois de apagar: `lib.refresh()` (preserva scroll) e `deleteThumb(nome)`.
 
+### 10.6 ARMADILHA DO LAYER (vale para todas as fases)
+
+Achado da Fase 0, e é a faca de dois gumes do §9.
+
+O `core.min.css` do Franken vive inteiro em `@layer`. CSS **sem** layer vence
+qualquer layer. Isso é o que protege o grid por construção — e é o que
+**quebrava todo componente `uk-*` em silêncio**: o `* { margin:0; padding:0 }`
+do `index.css` estava sem layer e ganhava do `.uk-card-body`, deixando
+`dialogPadding` em `0px`.
+
+A Fase 0 deletou o reset (o `@layer base` do Franken traz reset idêntico, era
+redundante) e conferiu o grid campo a campo depois: intacto.
+
+**Regra prática:** componente `uk-*` sem espaçamento ou com tamanho errado? Não
+é bug do Franken. Procure a regra **sem layer** no `index.css` que está ganhando
+dele. Segundo caso já visto: `.uk-btn` dimensiona `svg` filho em `1rem`, o que
+encolheu os ícones lucide de 24px para 16px.
+
+**`elements.js` tinha DUAS armadilhas, não uma.** Além do
+`querySelector('dialog')` que §9.1 citava, a linha 14 tinha `'dialog button'` —
+mesmo bug, mesma consequência. Ambas fechadas.
+
+### 10.7 EMENDA a §12: probe permanente e inerte
+
+A Fase 0 melhorou a doutrina de teste que eu tinha escrito. Em vez de
+instrumentar `src/main/index.js` temporariamente e reverter, ela criou
+`src/main/probe.js` pendurado em `app.on('browser-window-created')`, mais **uma
+linha** de `require` no fim do main.
+
+Vantagens sobre a receita original de §12: é inerte sem a variável de ambiente
+`VEDITBOX_PROBE`, é permanente, é reusável pelas outras fases, e **elimina a
+etapa de reversão** — que é justamente onde se esquece de reverter.
+
+Fases 1, 2 e 3 devem usar `src/main/probe.js` em vez de instrumentação temporária.
+
 ### Paralelismo real
 
 Honestidade sobre limites:
