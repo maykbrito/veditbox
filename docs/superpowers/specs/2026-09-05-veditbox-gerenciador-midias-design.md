@@ -399,6 +399,38 @@ Thumbs: `thumbPath(nome)`, `getThumb(item)`, `deleteThumb(nome)`.
 **Resolve S4:** a Fase 2 não deve montar o caminho do thumb à mão. Chama
 `deleteThumb(nome)`. Se o padrão de nome mudar, quem muda é a dona.
 
+### 10.1 Protocolo de merge (revisão cruzada dos 4 planos)
+
+A análise de arquivos citados nos quatro planos revelou colisões que nenhum
+plano isolado enxergava. Regras normativas:
+
+**Dono único por arquivo compartilhado.** Quem não é dono consome, não edita.
+
+| Arquivo | Dono | Demais |
+|---|---|---|
+| `src/main/index.js` | ninguém — ver append-only | uma linha cada |
+| `src/utils/elements.js` | Fase 0 (corrige `id="helpDialog"`) | consomem |
+| `src/renderer/styles/index.css` | Fase 0 | usam arquivo próprio |
+| `src/renderer/lib/library.js` | Fase 1 | consomem via `cellHooks`/`renderGrid` |
+| `src/renderer/lib/recorder/audio/index.js` | Fase 3 (guarda de foco) | Fase 2 só testa |
+
+**Regra append-only para `src/main/index.js` e `src/renderer/index.js`:** toda
+fase põe sua lógica em módulo próprio e acrescenta **uma única linha** de
+`require` no fim do arquivo. Nada de editar o bloco de imports do topo — é onde
+merges de quatro frentes explodem. A Fase 2 já fazia assim; agora vale para
+todas.
+
+**Fase 1 move o CSS do grid** de `index.css` para `styles/grid.css`. Isso
+elimina a colisão tripla (0/1/2) no `index.css` e dá dono único a ele.
+
+**Probe `grid-snapshot` da Fase 0** fixa o comportamento atual do grid. Quando a
+Fase 1 reescrever, ele falha por bom motivo: a Fase 1 **atualiza os valores
+esperados**, não deleta o probe.
+
+**Suposições S1 e S4 da Fase 2 estão erradas** (o store é `media-index.js`, não
+`library/store.js`; o thumb se apaga com `deleteThumb()`, não montando caminho).
+Corrigidas em §10 acima — reler antes de implementar.
+
 ### Paralelismo real
 
 Honestidade sobre limites:
