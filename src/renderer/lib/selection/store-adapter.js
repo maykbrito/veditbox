@@ -8,8 +8,15 @@
 const mediaIndex = require('../media-index')
 const thumbs = require('../thumbs')
 const lib = require('../library')
+const { CONSTANTS } = require('../../../utils/constants')
 
 const ITEM_SELECTOR = '.library-item'
+
+// Espelha a linha do media-index.js: VEDITBOX_DIR existe pros probes rodarem
+// numa pasta descartavel. O undo precisa restaurar na MESMA pasta de onde o
+// arquivo saiu — usar CONSTANTS.destDownloadFolder direto devolveria o arquivo
+// pra biblioteca real durante um teste.
+const libDir = () => process.env.VEDITBOX_DIR || CONSTANTS.destDownloadFolder
 
 const nameOf = (el) => el && el.dataset && el.dataset.name
 
@@ -70,6 +77,7 @@ const repaint = () => lib.refresh()
 
 module.exports = {
   ITEM_SELECTOR,
+  libDir,
   nameOf,
   currentTab,
   selectableNames,

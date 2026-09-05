@@ -6,7 +6,6 @@ const { ipcRenderer } = require('electron')
 const { dialog, getCurrentWindow } = require('@electron/remote')
 
 const { showStatus } = require('../../../utils/show-status')
-const { CONSTANTS } = require('../../../utils/constants')
 
 const sel = require('./selection')
 const adapter = require('./store-adapter')
@@ -107,7 +106,7 @@ const undoLastDelete = async () => {
   const { ok, fail } = await ipcRenderer.invoke(
     'untrash-files',
     lote.map(({ name, trashedPath }) => ({ name, trashedPath })),
-    CONSTANTS.destDownloadFolder,
+    adapter.libDir(),
   )
 
   const restaurados = new Set(ok)
@@ -126,14 +125,14 @@ const undoLastDelete = async () => {
   // §7 best-effort: Lixeira esvaziada => FALHA E AVISA, nunca finge sucesso.
   if (fail.length) {
     showStatus(
-      `${ok.length} restaurado(s), ${fail.length} nao: ${fail[0].error}`,
+      `${ok.length} de volta, ${fail.length} nao: ${fail[0].error}`,
       'var(--red)',
     )
     console.error('falhas ao restaurar:', fail)
     return
   }
 
-  showStatus(`${plural(ok.length)} restaurado(s) da Lixeira`)
+  showStatus(`${plural(ok.length)} de volta da Lixeira`)
 }
 
 module.exports = { deleteSelected, undoLastDelete, lastBatch }
