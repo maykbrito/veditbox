@@ -141,9 +141,36 @@
   resultado.topBar.filhosApos3Ciclos = document.querySelector('#topBar').children.length
 
   // §8.0: o handler do gravador de audio continua sendo uma atribuicao viva —
-  // nao trocamos por addEventListener nem apagamos.
+  // usamos addEventListener e nao encostamos em window.onkeydown.
+  //
+  // NAO apertamos `r` de verdade. Tentei, e a licao foi imediata: o handler do
+  // gravador faz preventDefault E CHAMA toggleRecording — ou seja, o probe
+  // comecava a gravar audio, que e exatamente como a Fase 3 sujou a biblioteca
+  // com 3 .wav. O `r` continua verificado, so que sem gravar: chrome-func ja
+  // prova que window.onkeydown esta vivo, e aqui provamos o outro lado — que os
+  // atalhos DESTA fase nao consomem tecla sem modificador antes de o gravador
+  // ver. 'q' e uma tecla que ninguem trata: se ela voltar cancelada, algum
+  // handler novo esta comendo teclas soltas.
+  const teclaSolta = (key) => {
+    const ev = new KeyboardEvent('keydown', { key, cancelable: true, bubbles: true })
+    window.dispatchEvent(ev)
+    return ev.defaultPrevented
+  }
+
+  sel.clear()
+  await espera(100)
   resultado.teclado = {
     onkeydownEhAtribuicao: typeof window.onkeydown === 'function',
+    teclaSoltaNaoConsumida: teclaSolta('q') === false,
+    selecaoIntactaAposTeclaSolta: sel.count() === 0,
+    // Esc sem selecao nao pode ser consumido, senao rouba o Esc do modal
+    escSemSelecaoNaoCancelado: teclaSolta('Escape') === false,
+    // ja com selecao, Esc PRECISA ser consumido
+    escComSelecaoCancelado: (() => {
+      sel.selectAll(adapter.selectableNames().slice(0, 2))
+      const consumiu = teclaSolta('Escape')
+      return consumiu === true && sel.count() === 0
+    })(),
   }
 
   // higiene: este probe nao apagou nada

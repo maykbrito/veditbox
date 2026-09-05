@@ -4,6 +4,24 @@
 
 ### New
 
+* Seleção múltipla no grid: checkbox no hover (a única parte descobrível),
+  clique alterna em modo seleção, `Shift+clique` estende o intervalo, `Cmd+A`
+  seleciona a aba inteira e `Esc` limpa. A `#topBar` vira "N selecionados" +
+  ações enquanto há seleção
+* `Cmd+A` opera sobre o **índice**, não sobre o DOM: o grid carrega em lotes de
+  60, então selecionar o que está na tela pegaria 60 de 90 e o usuário apagaria
+  achando que apagou tudo
+* Delete em lote para a Lixeira do sistema (`Cmd+Delete` ou botão "Apagar").
+  Cada exclusão faz três coisas: manda pra Lixeira, remove a entrada do índice e
+  apaga o thumb do cache. 1 arquivo vai direto; 2 ou mais pedem confirmação
+  nativa mostrando a contagem
+* Undo de um nível com `Cmd+Z`: devolve o último lote da Lixeira e repõe as
+  entradas do índice. Best-effort — se a Lixeira foi esvaziada, avisa em
+  vermelho em vez de fingir que deu certo
+* A Lixeira de destino é **descoberta**, não fixada: `~/veditbox` é symlink pro
+  Google Drive nesta máquina, e um arquivo de lá vai pro `.Trash` do container
+  do Drive, não pro `~/.Trash` que o design supunha
+
 * Índice de metadados em `~/veditbox/.veditbox/index.json`: guarda a URL de
   origem, título, tags e notas de cada arquivo. Escrita atômica (tmp + rename)
   com debounce de 500ms, porque a pasta pode estar sincronizada na nuvem
