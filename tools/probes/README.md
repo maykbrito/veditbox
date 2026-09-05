@@ -28,6 +28,48 @@ de `require` no fim do main. Nada a reverter.
 | `chrome-func` | clica em tudo (abas, logo, preview, checkbox, ajuda) e confere o comportamento |
 | `dialog` | abre/fecha o dialog de ajuda pelo `#helpBtn` e mede cores e padding |
 | `grid-snapshot` | computed style do grid — portão de fronteira contra invasão de escopo |
+| `focus-guard` | §8.1: digitar num input não grava áudio, **com controle negativo** |
+| `search-ui` | palette Cmd+K, filtro "sem origem", sheet, pills e `addTagToMany` |
+| `search-visual` | screenshot da palette com resultados ranqueados |
+| `sheet-visual` | screenshot do sheet com metadado carregado |
+| `franken-api`, `franken-api2`, `franken-api3` | reconhecimento da API real dos componentes do Franken |
+
+### Probes que escrevem na biblioteca real
+
+`search-ui`, `search-visual` e `sheet-visual` **semeiam metadado** em
+`~/veditbox/.veditbox/index.json` (a biblioteca desta máquina nasceu antes do
+índice, então todas as 92 entradas têm URL vazia e a busca por url/domínio nunca
+seria exercitada). Cada um **desfaz o que escreveu** no último passo. Se um probe
+falhar no meio, confira o resíduo:
+
+```
+node -e "const fs=require('fs'),p=require('os').homedir()+'/veditbox/.veditbox/index.json';const i=JSON.parse(fs.readFileSync(p));console.log(Object.entries(i).filter(([k,v])=>k!=='arquivadas'&&(v.titulo||v.notes||(v.tags||[]).length||v.url)))"
+```
+
+## Lições que a Fase 3 pagou (leia antes de usar componente do Franken)
+
+**Nem todo componente do Franken é custom element.** Medido com o app rodando:
+`uk-command` e `uk-input-tag` **estão** registrados no `customElements`;
+`uk-offcanvas`, `uk-drop` e `uk-icon` **não**. O Offcanvas existe só como
+componente UIkit JS — `window.UIkit.offcanvas(el, { flip: true, overlay: true })`.
+Escrever `<uk-offcanvas>` no HTML produz uma `<div>` inerte, sem erro nenhum.
+
+**O `<uk-input-tag>` lê as tags iniciais de `value`, não de `state`.** Com
+`state="a,b"` ele nasce vazio e `addTag()` não faz nada; com `value="a,b"` ele
+monta os chips e publica `<input type="hidden" name="tags[]">`. E ele só lê na
+inicialização: trocar o atributo depois não recarrega, então reabrir o sheet com
+outro arquivo exige **recriar o elemento**. Nada disso aparece na documentação —
+saiu do probe `franken-api3`, que testou os quatro formatos plausíveis.
+
+**A armadilha do layer (§10.6) também vem de regras de ELEMENTO.** O `index.css`
+tem `dialog { width: 80% }`, `dialog p`, `dialog button` e
+`img, video { width: 100%; height: 100% }` sem layer. Foram escritas pro dialog
+de ajuda, mas casam com **qualquer** `<dialog>` do documento. O mesmo vale pro
+`.library-item > *` do `grid.css`, que força `position:absolute; inset:0;
+width/height:100%; pointer-events:none` em todo filho de célula. Quem adiciona
+elemento novo ganha por especificidade, mas tem que **desfazer campo a campo** —
+`width` e `height` não se desfazem sozinhos. `search-ui` mede esses computed
+styles justamente porque a quebra é silenciosa.
 
 ## Comparar screenshots
 
