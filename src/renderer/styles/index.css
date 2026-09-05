@@ -52,9 +52,14 @@ body {
   text-align: center;
   gap: 4px;
   height: 50px;
+  /* .uk-btn traz --uk-btn-height (20px); a sidebar quer 50px */
+  min-height: 50px;
+  padding: 0;
+  border: none;
   color: var(--gray-100);
   background: var(--pink);
-  border-radius: 6px;
+  border-radius: var(--uk-global-radius);
+  cursor: pointer;
 }
 
 #menu ul {
@@ -65,16 +70,21 @@ body {
 
 #menu ul li,
 .button {
-  all: unset;
-  
   display: grid;
   place-content: center;
-  
+
   width: 100%;
   height: 50px;
+  /* idem: as classes uk-btn nao podem encolher os alvos do menu */
+  min-height: 50px;
+  padding: 0;
 
-  border-radius: 6px;
+  border: none;
+  border-radius: var(--uk-global-radius);
+  background: transparent;
+  color: inherit;
   cursor: pointer;
+  list-style: none;
 }
 
 .button:hover,
@@ -85,7 +95,11 @@ body {
 }
 
 #topBar {
+  /* 8px + 20px + 8px = 36px. src/main/index.js depende disso:
+     trafficLightPosition.y = (36 - 12) / 2 = 12. Altura explicita pra Fase 2
+     poder trocar o status pela barra "N selecionados" sem mover o frame. */
   padding: 8px;
+  height: 36px;
   display: flex;
   align-items: center;
   width: 100%;
@@ -276,13 +290,23 @@ dialog button {
   -webkit-app-region: no-drag;
 }
 
+/* .uk-btn dimensiona svg filho em 1rem (16px) e encolhia os icones lucide,
+   que nascem com width=24. Medido: 24 -> 16 ao adotar as classes do Franken. */
+#menu svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* .uk-checkbox nasce 16px; 13px e a largura nativa que a topBar ja reservava */
+#topBar .uk-checkbox {
+  width: 13px;
+  height: 13px;
+  margin: 0;
+}
+
 .tab-label {
   font-weight: bold;
   letter-spacing: 1px;
-}
-
-#menu h2 {
-  cursor: pointer;
 }
 
 #menu h2:active {

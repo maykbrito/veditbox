@@ -16,21 +16,21 @@
   <body>
     <div id="appLayout">
       <nav id="menu">
-        <h2><i data-lucide="box"></i></h2>
+        <h2 class="uk-btn uk-btn-primary"><i data-lucide="box"></i></h2>
         <ul>
-          <li class="active" data-tab="download"><i data-lucide="hard-drive-download"></i></li>
-          <li data-tab="image"><i data-lucide="image"></i></li>
-          <li data-tab="gif"><span class="tab-label">GIF</span></li>
-          <li data-tab="video"><i data-lucide="video"></i></li>
-          <li data-tab="audio"><i data-lucide="music-2"></i></li>
+          <li class="uk-btn uk-btn-ghost active" data-tab="download"><i data-lucide="hard-drive-download"></i></li>
+          <li class="uk-btn uk-btn-ghost" data-tab="image"><i data-lucide="image"></i></li>
+          <li class="uk-btn uk-btn-ghost" data-tab="gif"><span class="tab-label">GIF</span></li>
+          <li class="uk-btn uk-btn-ghost" data-tab="video"><i data-lucide="video"></i></li>
+          <li class="uk-btn uk-btn-ghost" data-tab="audio"><i data-lucide="music-2"></i></li>
         </ul>
-        <button class="button" id="helpBtn"><i data-lucide="help-circle"></i></button>
+        <button class="button uk-btn uk-btn-ghost" id="helpBtn"><i data-lucide="help-circle"></i></button>
       </nav>
       <div id="topBar">
         <div id="statusText"></div>
         <form id="settingsForm">
           <label>
-            <input type="checkbox" name="alwaysOnTop" /> Always on top
+            <input type="checkbox" class="uk-checkbox" name="alwaysOnTop" /> Always on top
           </label>
         </form>
       </div>
