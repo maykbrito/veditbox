@@ -1,0 +1,73 @@
+/* CSS da selecao (Fase 2). Arquivo proprio: o index.css tem dono unico
+ * (Fase 0) e o grid.css e da Fase 1 (§10.1).
+ *
+ * Sem @layer de proposito, igual grid.css e theme.css: o core.min.css do
+ * Franken vive todo em @layer e CSS sem layer vence qualquer layer (§10.6).
+ *
+ * ARMADILHA ESPECIFICA DAQUI: o grid.css tem
+ *   .library-item > * { position:absolute; inset:0; width:100%; height:100%;
+ *                       pointer-events:none }
+ * que tem a MESMA especificidade (0,1,0) que `.select-box` — quem vence viraria
+ * ordem de <link>. Por isso todo seletor abaixo e `.library-item > .select-box`
+ * (0,2,0): ganha independente da ordem dos links no index.html. */
+
+.library-item > .select-box {
+  position: absolute;
+  inset: auto auto auto auto;
+  top: 6px;
+  left: 6px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  z-index: 2;
+  opacity: 0;
+  cursor: pointer;
+  accent-color: var(--pink);
+  /* precisa reverter o pointer-events:none de `.library-item > *` */
+  pointer-events: auto;
+}
+
+/* §7: o checkbox no hover e a UNICA parte descobrivel da selecao.
+   Em modo selecao ficam todos visiveis, pra deixar claro que o clique mudou. */
+.library-item:hover > .select-box,
+.library-item.selected > .select-box,
+body.selecting .library-item > .select-box {
+  opacity: 1;
+}
+
+.library-item.selected {
+  outline: 2px solid var(--light-purple);
+  outline-offset: -2px;
+}
+
+.library-item.selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgb(152 139 199 / 30%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* em modo selecao o cursor `grab` do grid mentiria sobre o que o clique faz */
+body.selecting .library-item {
+  cursor: pointer;
+}
+
+.selection-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.selection-bar .selection-count {
+  margin-right: auto;
+}
+
+/* a barra ESCONDE o conteudo original da topBar em vez de destaca-lo do DOM:
+   assim o #statusText continua consultavel e o #settingsForm nao perde
+   listeners nem o estado do checkbox */
+#topBar > .selection-hidden {
+  display: none;
+}

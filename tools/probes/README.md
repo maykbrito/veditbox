@@ -137,3 +137,47 @@ Padrão que sobrou: se um componente `uk-*` vier sem espaçamento ou com tamanho
 errado, procure a regra sem layer no `index.css` que está ganhando dele. Foi
 assim também com os ícones (`.uk-btn` dimensiona `svg` filho em 1rem e encolheu
 os ícones lucide de 24px para 16px — medido, corrigido com `#menu svg`).
+
+## Probes da Fase 2 (seleção, delete, undo)
+
+| Probe | Mede | Destrutivo? |
+|---|---|---|
+| `selection-ui` | computed style do checkbox campo a campo (§10.9), Cmd+A sobre a lista vs DOM (§10.5), shift+clique, topBar, teclado | não |
+| `selection-delete` | delete + undo + falha honesta, ponta a ponta | **sim** — só em pasta descartável |
+| `selection-confirm` | 1 item não confirma, 2+ confirma com a contagem | **sim** — só em pasta descartável |
+| `selection-real` | falha parcial na biblioteca real, com os 2 `.mp4` de 0 byte | **sim** — round-trip, devolve tudo |
+
+Os destrutivos **não se rodam na mão**. Use os wrappers, que contam os arquivos
+da biblioteca real antes e depois e falham se o número não fechar:
+
+```
+bash scripts/check-selection-flow.sh   # pasta descartável via VEDITBOX_DIR
+bash scripts/check-selection-real.sh   # biblioteca real, round-trip completo
+```
+
+`selection-delete` e `selection-confirm` se recusam a rodar se `libDir()` não
+contiver `probe` no caminho — a trava que impede um `VEDITBOX_DIR` esquecido de
+apagar a biblioteca de verdade.
+
+### Higiene: apagar o arquivo não basta
+
+Tirar o arquivo da pasta deixa a entrada no `index.json`, e a reconciliação do
+próximo boot a transforma em **tombstone** (§4.1) — lixo permanente na
+biblioteca do usuário. Os wrappers limpam a entrada também. Aprendido por ter
+deixado uma para trás.
+
+### Não aperte `r` num probe
+
+O handler do gravador (`window.onkeydown`) faz `preventDefault()` **e chama
+`toggleRecording`**: dispare `r` e o probe começa a gravar áudio de verdade, que
+vira `.wav` na biblioteca. A regressão de §8.0 se verifica sem isso —
+`chrome-func` prova que o handler está vivo, e `selection-ui` prova que os
+atalhos da Fase 2 não consomem tecla solta (usa `q`, que ninguém trata).
+
+### A confirmação nativa não é clicável por probe
+
+`dialog.showMessageBox` é folha do SO; `executeJavaScript` não a alcança e
+dirigi-la por AppleScript exige permissão de Acessibilidade (tentado: trava
+esperando o prompt de TCC). `selection-confirm` espiona `dialog.showMessageBox`
+no ponto de chamada e verifica se foi chamado, com que texto/botões, e o efeito
+de cada resposta. A renderização pelo SO fica para olho humano.

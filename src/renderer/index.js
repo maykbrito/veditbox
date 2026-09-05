@@ -34,3 +34,6 @@ require('./lib/boot.js')
 
 // busca (Cmd+K), pills de tag e sheet de metadados (fase 3) — append-only por §10.1
 require('./lib/search/index.js')
+
+// Selecao, delete e undo (fase 2) — append-only por §10.1
+require('./lib/selection')
