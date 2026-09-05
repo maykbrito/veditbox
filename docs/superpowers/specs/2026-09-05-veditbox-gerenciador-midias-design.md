@@ -477,6 +477,42 @@ Os 4 restantes são arquivos honestamente quebrados — dois `.webp` animados qu
 decoder do ffmpeg não lê (o Chromium lê, então o fallback ao original exibe
 certo) e dois `.mp4` de 0 byte, resíduo do bug antigo do yt-dlp.
 
+### 10.4 Lições do merge 0 -> 1
+
+**Auditoria de commit tem duas perguntas, não uma.** Auditei `5ced490` perguntando
+"isso invade a fronteira do grid?" e aprovei como "cirúrgico". A pergunta que
+faltou: **"isso é auto-contido?"**. Não era — o `<link>` do `theme.css` vive em
+`2d5d2ed`, um commit antes. Cherry-pick isolado deixou o app com tokens vazios,
+fundo transparente e texto preto. O `--stat` mostrava só `index.css` e
+`theme.css`, sem `index.html`: o dado estava à vista e eu não raciocinei sobre ele.
+
+Regra: antes de liberar cherry-pick, verificar o **fecho transitivo** — se o
+commit cria um arquivo, quem o referencia?
+
+**`src/renderer/index.html`:** cada fase pode acrescentar suas próprias linhas de
+`<link>`/`<script>`. Mudança **estrutural** de markup é da Fase 0.
+
+**Probe `grid-snapshot`, valores novos** (§10.1 manda atualizar, não deletar).
+Quem fizer o merge 0 -> 1 troca:
+
+- `itens`: 90 -> **61** (60 células + a sentinela do IntersectionObserver)
+- `tagsDeThumb`: agora `[IMG,IMG,DIV,IMG,IMG,IMG,IMG,IMG]` (o `DIV` é o áudio)
+- **campo novo `videosNoDom`, esperado `0`** — é o invariante de §6. Sem ele o
+  probe não pega uma regressão que reintroduza decoder no grid.
+
+Os outros 11 campos não mudam.
+
+### 10.5 ARMADILHA do Cmd+A (Fase 2)
+
+Achado da Fase 1, que **não** resolveu por ser escopo alheio:
+
+**60 células estão no DOM, 90 entradas estão no índice.** Se o Cmd+A operar sobre
+o DOM, o usuário seleciona 60 de 90 achando que pegou tudo — e apaga achando que
+apagou tudo. Selecionar opera sobre a **lista** (`getAll()`), nunca sobre o DOM.
+
+`getRenderedItems()` serve para iterar o que está na tela; `getAll()` para o
+Cmd+A. Depois de apagar: `lib.refresh()` (preserva scroll) e `deleteThumb(nome)`.
+
 ### Paralelismo real
 
 Honestidade sobre limites:
