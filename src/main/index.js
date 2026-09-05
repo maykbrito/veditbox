@@ -64,3 +64,6 @@ app.whenReady().then(createWindow).then(createShortcuts)
 
 // Probe de verificacao (design doc §12) — inerte sem VEDITBOX_PROBE
 require('./probe')
+
+// Lixeira e restauracao da fase 2 (ipc trash-files / untrash-files)
+require('./trash')
