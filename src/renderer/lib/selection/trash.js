@@ -84,10 +84,11 @@ const deleteSelected = async () => {
   adapter.repaint()
 
   if (fail.length) {
-    showStatus(
-      `${ok.length} na Lixeira, ${fail.length} falharam: ${fail[0].error}`,
-      'var(--red)',
-    )
+    // §7 falha e avisa. Os que falharam continuam selecionados, entao a barra
+    // ainda esta de pe e o #statusText, escondido — o aviso sai nos dois.
+    const aviso = `${ok.length} na Lixeira, ${fail.length} falharam: ${fail[0].error}`
+    showStatus(aviso, 'var(--red)')
+    require('./action-bar').showError(aviso)
     console.error('falhas ao apagar:', fail)
     return
   }

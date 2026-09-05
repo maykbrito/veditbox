@@ -58,20 +58,33 @@ const render = () => {
   if (n === 0) {
     if (barra) barra.remove()
     barra = null
-    conteudoOriginal.forEach((el) => topBar.appendChild(el))
+    conteudoOriginal.forEach((el) => el.classList.remove('selection-hidden'))
     return
   }
 
   if (!barra) {
-    conteudoOriginal.forEach((el) => el.remove())
+    // ESCONDE, nao destaca. Destacar tirava o #statusText do DOM enquanto a
+    // barra estava de pe, e um showStatus de falha parcial (que POR DEFINICAO
+    // deixa itens selecionados) escrevia num no invisivel — o aviso de §7
+    // simplesmente nao aparecia. Escondido, ele continua consultavel e volta
+    // intacto, com listeners e estado do checkbox.
+    conteudoOriginal.forEach((el) => el.classList.add('selection-hidden'))
     reconstruir()
   }
 
   barra._contagem.textContent = n === 1 ? '1 selecionado' : `${n} selecionados`
 }
 
+// §7 "falha e avisa": com a barra de pe o #statusText esta escondido, entao o
+// aviso tem que sair na propria barra.
+const showError = (texto) => {
+  if (!barra) return
+  barra._contagem.textContent = texto
+  barra._contagem.style.color = 'var(--red)'
+}
+
 const mount = () => {
   sel.onChange(render)
 }
 
-module.exports = { mount, setDeleteHandler, addAction }
+module.exports = { mount, setDeleteHandler, addAction, showError }

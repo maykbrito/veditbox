@@ -64,3 +64,10 @@ body.selecting .library-item {
 .selection-bar .selection-count {
   margin-right: auto;
 }
+
+/* a barra ESCONDE o conteudo original da topBar em vez de destaca-lo do DOM:
+   assim o #statusText continua consultavel e o #settingsForm nao perde
+   listeners nem o estado do checkbox */
+#topBar > .selection-hidden {
+  display: none;
+}
