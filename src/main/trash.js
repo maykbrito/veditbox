@@ -22,6 +22,26 @@ const { ipcMain, shell } = require('electron')
 
 const HOME_TRASH = path.join(os.homedir(), '.Trash')
 
+// Lixeira propria, vizinha do index.json. Mesmo volume que a biblioteca, entao
+// mover pra ca e rename: instantaneo e independente de permissao do sistema.
+function paraLixeiraDoApp(filePath) {
+  try {
+    const dir = path.join(path.dirname(filePath), '.veditbox', 'lixeira')
+    fs.mkdirSync(dir, { recursive: true })
+
+    let destino = path.join(dir, path.basename(filePath))
+    if (fs.existsSync(destino)) {
+      // nao sobrescreve o que ja foi apagado antes com o mesmo nome
+      destino = path.join(dir, `${Date.now()}-${path.basename(filePath)}`)
+    }
+
+    fs.renameSync(filePath, destino)
+    return destino
+  } catch (erro) {
+    return null
+  }
+}
+
 // Nota: readdir em ~/.Trash e EPERM (TCC do macOS) mesmo para o app, mas
 // existsSync/statSync num caminho especifico funciona — verificado. Por isso
 // tudo aqui e por caminho exato, nunca listagem.
@@ -82,9 +102,24 @@ const trashFiles = async (filePaths) => {
         candidatas.map((d) => path.join(d, nome)).filter((p) => fs.existsSync(p)),
       )
 
-      await shell.trashItem(filePath)
+      let trashedPath
+      try {
+        await shell.trashItem(filePath)
+        trashedPath = ondeCaiu(candidatas, tinhaAntes, nome)
+      } catch (erroSistema) {
+        // A Lixeira do sistema depende do TCC, e o TCC depende de qual processo
+        // e "responsavel" pelo app — coisa que o usuario nao controla bem e que
+        // some quando o bundle e substituido. Apagar nao pode ficar refem disso.
+        //
+        // Fallback: lixeira do proprio app, dentro da biblioteca. E rename no
+        // MESMO volume, entao e instantaneo e nao pede permissao nenhuma.
+        // Perde o "Colocar de volta" do Finder; o Cmd+Z continua funcionando,
+        // porque untrashFiles so precisa de um caminho conhecido.
+        trashedPath = paraLixeiraDoApp(filePath)
+        if (!trashedPath) throw erroSistema
+      }
 
-      ok.push({ path: filePath, trashedPath: ondeCaiu(candidatas, tinhaAntes, nome) })
+      ok.push({ path: filePath, trashedPath })
     } catch (erro) {
       fail.push({ path: filePath, error: erro.message })
     }

@@ -625,6 +625,47 @@ tal: um lote de 3 onde 1 sai e 2 ficam. O app **relata por item** em vez de
 afirmar que apagou tudo, e os que ficaram seguem no índice, coerentes com o
 disco.
 
+### 10.12 Delete não pode depender de TCC
+
+§7 e §10.10 assumiam a Lixeira do sistema. Na prática ela falhou para o usuário
+e **nenhuma concessão de permissão resolveu**.
+
+O TCC do macOS decide por *processo responsável*, não por caminho de arquivo:
+o app lançado pelo Finder tem identidade própria, e **substituir o bundle
+invalida a concessão** — coisa que acontece a cada build.
+
+**Correção:** `trashFiles` tenta `shell.trashItem` e, se falhar, move para
+`~/veditbox/.veditbox/lixeira/`. É `rename` no mesmo volume: instantâneo e sem
+permissão. `untrashFiles` já restaurava por caminho conhecido, então o `Cmd+Z`
+funciona igual nos dois caminhos.
+
+Custo aceito: no caminho alternativo não há "Colocar de volta" do Finder, e a
+pasta sincroniza com o Drive até ser esvaziada.
+
+Verificado: `categoryOf('.veditbox')` é `undefined` e o `readdir` não é
+recursivo, então a lixeira nunca aparece no grid.
+
+### 10.13 Como eu errei o diagnóstico três vezes
+
+Registrado porque o padrão vai se repetir.
+
+1. **"O File Provider do Google Drive bloqueia a Lixeira"** — errado. Testei e
+   funcionou.
+2. **"É TCC do app empacotado, basta Full Disk Access"** — incompleto. Necessário,
+   mas não suficiente.
+3. **"A permissão já está concedida, o processo é que está velho"** — errado, e
+   pelo pior motivo: rodei o binário do app **a partir do terminal**. No macOS o
+   processo herda o TCC de quem o lançou, e o terminal tinha Full Disk Access.
+   **Testei a permissão do meu shell achando que testava a do app.**
+
+O item 3 é irmão do erro de §10.10 (verificar `trashItem` num arquivo do volume
+local em vez do Drive): **mecanismo certo, contexto errado**. Produz confiança
+injustificada, que é pior que não ter testado.
+
+**Regra:** ao verificar algo que depende de permissão ou de ambiente, reproduzir
+o contexto real — o mesmo lançador, o mesmo volume, a mesma identidade. Se não
+der para reproduzir, dizer que não deu, em vez de aceitar o teste conveniente.
+
 ### Paralelismo real
 
 Honestidade sobre limites:

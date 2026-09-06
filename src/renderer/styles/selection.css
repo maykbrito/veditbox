@@ -71,3 +71,11 @@ body.selecting .library-item {
 #topBar > .selection-hidden {
   display: none;
 }
+
+/* O tema .dark do Franken aplica --destructive-alpha: 60%, deixando o botao
+   translucido. Na barra de selecao "Apagar" e a acao primaria, e translucidez
+   e a linguagem visual de "desabilitado" — o usuario leu como desabilitado.
+   Opaco aqui, sem mexer no token global. */
+.selection-bar .uk-btn-destructive {
+  --destructive-alpha: 1;
+}

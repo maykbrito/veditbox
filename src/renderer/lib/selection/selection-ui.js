@@ -48,8 +48,15 @@ const aoClicar = (event) => {
   // Capture + stopPropagation: e o que impede o `el.onclick = showPreview` que a
   // Fase 1 poe em cada celula de disparar. Consumir aqui e mais barato do que
   // pedir um hook de clique pra dona do grid.
-  event.preventDefault()
+  // stopPropagation e o que impede o preview; preventDefault e o que quebrava.
   event.stopPropagation()
+
+  // Num <input type=checkbox> o browser marca ANTES de disparar o clique e
+  // REVERTE depois se o default for cancelado — desfazendo o paint() que roda
+  // aqui no meio. O sintoma era a marcacao atrasada em um passo. Sem
+  // preventDefault, o toggle nativo fica de pe e paint() escreve o valor
+  // autoritativo por cima. Probe: tools/probes/checkbox-lag.js
+  if (!noCheckbox) event.preventDefault()
 
   // Shift estende sobre a ordem EXIBIDA — intervalo e um gesto sobre a tela.
   // Cmd+A e outra historia: opera sobre a lista (§10.5), ver shortcuts.js.

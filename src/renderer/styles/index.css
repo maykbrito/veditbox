@@ -199,8 +199,14 @@ dialog button {
   -webkit-app-region: drag;
 }
 
+/* A #topBar inteira arrasta a janela (frame hiddenInset). Todo elemento
+   interativo dentro dela precisa sair da regiao de arrasto, senao o macOS
+   consome o clique como gesto de mover a janela e o controle parece
+   desabilitado. Foi o que aconteceu com os botoes da barra de selecao. */
 #topBar input,
-#topBar label {
+#topBar label,
+#topBar button,
+#topBar .selection-bar {
   -webkit-app-region: no-drag;
 }
 
