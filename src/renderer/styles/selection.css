@@ -79,3 +79,41 @@ body.selecting .library-item {
 .selection-bar .uk-btn-destructive {
   --destructive-alpha: 1;
 }
+
+/* §10.9: index.css tem `dialog { width: 80% }` e `dialog button` SEM layer, e
+   regra sem layer vence @layer. Desfaco campo a campo — width nao volta sozinho. */
+#promptDialog {
+  /* `width: auto` vence o `dialog { width: 80% }` do index.css, mas em elemento
+     posicionado vira shrink-to-fit e o .uk-input (width:100%) esticava o dialog
+     pra 1894px numa janela de 1920. Largura explicita e deterministica. */
+  width: 360px;
+  max-width: 90vw;
+  padding: 16px;
+  border: none;
+  border-radius: 8px;
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+}
+
+#promptDialog .prompt-form {
+  display: grid;
+  gap: 10px;
+}
+
+#promptDialog .prompt-input {
+  width: 100%;
+}
+
+#promptDialog .prompt-acoes {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* neutraliza o `dialog button` posicionado do index.css */
+#promptDialog .prompt-acoes button {
+  position: static;
+  left: auto;
+  transform: none;
+  margin: 0;
+}

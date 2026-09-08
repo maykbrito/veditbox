@@ -9,6 +9,8 @@ const download = (url) => {
   return new Promise(async (resolve, reject) => {
     const videoFilePath = CONSTANTS.videoFilePath()
     let video = youtubedl.execStream([
+      // instagram/tiktok exigem login; reusa os cookies do chrome
+      '--cookies-from-browser', 'chrome',
       '-o', videoFilePath,
       url,
     ])

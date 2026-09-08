@@ -16,9 +16,12 @@ try {
   const { addTagToMany } = require('../metadata-sheet')
   const sel = require('./selection')
 
+  const { pedirTexto } = require('./pedir-texto')
+
   actionBar.addAction('Adicionar tag', async () => {
-    const tag = window.prompt('Tag para os selecionados:')
-    if (tag && tag.trim()) addTagToMany(sel.names(), tag.trim())
+    // window.prompt nao existe no Electron: lanca e o botao morria calado
+    const tag = await pedirTexto(`Tag para ${sel.count()} item(ns):`, 'ex: basquete')
+    if (tag) addTagToMany(sel.names(), tag)
   })
 } catch (fase3NaoMergeada) {
   // segue sem o botao
