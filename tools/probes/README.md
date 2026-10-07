@@ -29,6 +29,7 @@ de `require` no fim do main. Nada a reverter.
 | `dialog` | abre/fecha o dialog de ajuda pelo `#helpBtn` e mede cores e padding |
 | `grid-snapshot` | computed style do grid — portão de fronteira contra invasão de escopo |
 | `focus-guard` | §8.1: digitar num input não grava áudio, **com controle negativo** |
+| `audio-recording` | interrompe a captura e verifica que a próxima gravação reabre o microfone e salva WAV; usa apenas uma pasta temporária |
 | `search-ui` | palette Cmd+K, filtro "sem origem", sheet, pills e `addTagToMany` |
 | `search-visual` | screenshot da palette com resultados ranqueados |
 | `sheet-visual` | screenshot do sheet com metadado carregado |

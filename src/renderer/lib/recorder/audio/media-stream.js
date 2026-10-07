@@ -2,7 +2,10 @@ let latestStream = null
 
 async function getMediaStream({ noiseSuppression }) {
   if (latestStream) {
-    if (latestStream.noiseSuppression !== noiseSuppression) {
+    if (
+      latestStream.noiseSuppression !== noiseSuppression ||
+      !latestStream.stream.active
+    ) {
       latestStream.destroy()
       latestStream = null
     }

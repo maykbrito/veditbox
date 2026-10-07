@@ -26,7 +26,7 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'r' || e.key === 'R') {
       e.preventDefault()
       e.stopPropagation()
-      toggleRecording({ noiseSuppression: !e.shiftKey })
+      toggleRecording({ noiseSuppression: e.shiftKey })
     } else if (e.key === ' ') {
       if (window.activeThing.play) {
         e.preventDefault()

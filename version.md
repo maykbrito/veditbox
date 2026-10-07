@@ -91,6 +91,23 @@
   atribuísse de novo apagaria a gravação por atalho em silêncio; virou
   `addEventListener`
 
+## 1.1.1
+
+### Update
+
+* `R` grava áudio sem redução de ruído; `Shift+R` ativa a redução.
+  Ganho automático e cancelamento de eco continuam desligados
+
+### Fix
+
+* App macOS assinado inclui a autorização `audio-input` no app e nos helpers.
+  Sem ela, abrir pelo Finder/Dock fazia o macOS negar a captura e entregar
+  áudio silencioso, mesmo quando os testes pelo terminal funcionavam
+
+* Gravador de áudio reabre o microfone quando a captura em cache foi
+  interrompida, em vez de reutilizar um stream inativo e ficar preso em
+  "Recording audio..." sem onda nem arquivo
+
 ## 1.1.0
 
 ### New

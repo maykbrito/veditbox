@@ -1,6 +1,6 @@
 {
   "name": "veditbox",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Utility Box to paste url, image data or record audio then drag it out as an file to another application.",
   "main": "src/main/index.js",
   "scripts": {
@@ -27,7 +27,12 @@
     "appId": "mb.veditbox",
     "asar": false,
     "mac": {
-      "category": "public.app-category.utilities"
+      "category": "public.app-category.utilities",
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "Veditbox usa o microfone para gravar áudio."
+      }
     },
     "files": [
       "src/**/*",
