@@ -90,6 +90,14 @@
 * O gravador de áudio usava `window.onkeydown = ...`. Qualquer outro arquivo que
   atribuísse de novo apagaria a gravação por atalho em silêncio; virou
   `addEventListener`
+* Download de vídeo do X/Twitter: o yt-dlp falhava com "Could not authenticate
+  you" porque o `--cookies-from-browser chrome` era fixo para todo site. Agora
+  só vai para os outros sites. Antes, a falha caía no fallback de `og:image` e a
+  thumbnail aparecia no lugar do vídeo
+* `convert` (ImageMagick) não era achado quando o app abria pelo Finder/Dock, e o
+  erro ENOENT derrubava o processo principal. Agora o PATH inclui
+  `/opt/homebrew/bin` e `/usr/local/bin`, e a falha mostra um aviso para instalar
+  o ImageMagick
 
 ## 1.1.1
 

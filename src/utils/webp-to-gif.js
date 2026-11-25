@@ -7,11 +7,14 @@ function webpToGif(file) {
 
   if(fs.existsSync(gifFile)) return gifFile
 
-  return new Promise((resolve) => {
-    magick.convert([file, '-format',  'gif', gifFile], (err, stdout) => {
-      if (err) throw err;
-      resolve(gifFile)
-    })
+  return new Promise((resolve, reject) => {
+    // o 'error' (ENOENT, convert ausente) nao tem listener no pacote: sem isso vira uncaught
+    magick
+      .convert([file, '-format',  'gif', gifFile], (err) => {
+        if (err) return reject(err)
+        resolve(gifFile)
+      })
+      .on('error', reject)
   })
 }
 

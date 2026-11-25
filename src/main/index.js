@@ -1,6 +1,15 @@
 require('@electron/remote/main').initialize()
 
-const { app, ipcMain, BrowserWindow, globalShortcut } = require('electron')
+const {
+  app,
+  ipcMain,
+  BrowserWindow,
+  globalShortcut,
+  dialog,
+} = require('electron')
+
+// Finder/Dock nao herda o PATH do shell: sem isso o convert do Homebrew nao e achado
+process.env.PATH = `/opt/homebrew/bin:/usr/local/bin:${process.env.PATH}`
 
 const { webpToGif } = require('../utils/webp-to-gif')
 
@@ -8,8 +17,20 @@ const path = require('path')
 let win
 
 ipcMain.on('dragfile', async (event, filePath) => {
+  let file
+  try {
+    file = await webpToGif(filePath)
+  } catch (error) {
+    dialog.showErrorBox(
+      'Veditbox',
+      error.code === 'ENOENT'
+        ? 'ImageMagick não encontrado — instale com brew install imagemagick'
+        : `Não consegui converter para GIF: ${error.message}`,
+    )
+    return
+  }
   event.sender.startDrag({
-    file: await webpToGif(filePath),
+    file,
     icon: path.join(__dirname, '..', '..', 'build/icon.png'),
   })
 })

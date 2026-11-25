@@ -8,9 +8,11 @@ const download = (url) => {
   let err = false
   return new Promise(async (resolve, reject) => {
     const videoFilePath = CONSTANTS.videoFilePath()
+    // instagram/tiktok exigem login; reusa os cookies do chrome.
+    // Com x/twitter os cookies fazem a API recusar ("Could not authenticate you"): sem eles funciona.
+    const usaCookies = !/^https?:\/\/([\w-]+\.)*(x|twitter)\.com\//i.test(url)
     let video = youtubedl.execStream([
-      // instagram/tiktok exigem login; reusa os cookies do chrome
-      '--cookies-from-browser', 'chrome',
+      ...(usaCookies ? ['--cookies-from-browser', 'chrome'] : []),
       '-o', videoFilePath,
       url,
     ])
